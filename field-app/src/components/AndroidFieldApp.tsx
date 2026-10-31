@@ -246,7 +246,7 @@ export const AndroidFieldApp: React.FC<AndroidFieldAppProps> = ({
       const startTime = now.toISOString();
       const endTime = new Date(now.getTime() + parseFloat(reqDurationHrs) * 60 * 60 * 1000).toISOString();
 
-      const chosenPhoto = reqPhoto || photoPreview || '/images/ohe_crew.jpg';
+      const chosenPhoto = (reqPhoto && reqPhoto.length < 250000) ? reqPhoto : (photoPreview && photoPreview.length < 250000 ? photoPreview : '/images/ohe_crew.jpg');
       const latVal = parseFloat(cameraGeo.lat) || 25.6028;
       const lngVal = parseFloat(cameraGeo.lng) || 85.1211;
       const fieldPhotoObj: FieldPhotoProof = {
