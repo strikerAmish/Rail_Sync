@@ -347,7 +347,7 @@ export function App() {
               setCurrentUser(null);
             }}
             onNavigateToPortal={() => {
-              window.open('http://localhost:5173', '_blank');
+              window.open('/', '_blank');
             }}
           />
         )}
