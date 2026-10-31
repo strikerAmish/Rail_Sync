@@ -6,7 +6,7 @@ interface LoginViewProps {
 }
 
 export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
-  const [username, setUsername] = useState('Divya Singh');
+  const [username, setUsername] = useState('danapur_sm');
   const [password, setPassword] = useState('123456');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -17,27 +17,28 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
     setLoading(true);
 
     setTimeout(() => {
-      // Validate credentials: Divya Singh / 123456 (or convenient variations)
+      // Validate credentials: danapur_sm / 123456 (Station Master: IIT_Patna)
       const cleanUser = username.trim().toLowerCase().replace(/[\s_.-]+/g, '');
       const validUsers = [
-        'divyasingh', 'divya', 'divyasinghraghuvanshi', 'dsingh',
-        'raviamish', 'ravi', 'admin', 'smwda', 'smwdajct'
+        'danapursm', 'danapur', 'iitpatna', 'iit_patna', 'iit', 'patna', 'patnasm',
+        'smdnr', 'smpnbe', 'admin', 'sm'
       ];
       if (
         validUsers.includes(cleanUser) ||
-        cleanUser.includes('divya') ||
-        cleanUser.includes('singh') ||
+        cleanUser.includes('danapur') ||
+        cleanUser.includes('patna') ||
+        cleanUser.includes('iit') ||
         cleanUser === 'admin' ||
-        cleanUser === 'raviamish'
+        cleanUser.includes('sm')
       ) {
         onLoginSuccess({
-          username: cleanUser.includes('ravi') ? 'raviamish' : 'divyasingh',
-          name: cleanUser.includes('ravi') ? 'Ravi Amish' : 'Divya Singh',
+          username: 'danapur_sm',
+          name: 'IIT_Patna',
           role: 'Station Master / Junction In-Charge',
-          station: 'Patna Jn (PNBE) & Danapur (DNR) Control',
+          station: 'Danapur (DNR) & Patna Jn (PNBE) Control',
         });
       } else {
-        setError('Invalid Operator ID or Security PIN. Please verify your credentials or contact Division Operating Control.');
+        setError('Invalid Operator ID or Security PIN. Correct credentials: danapur_sm / 123456');
         setLoading(false);
       }
     }, 350);
@@ -158,7 +159,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                   required
                   id="operator-id-input"
                   autoFocus
-                  placeholder="Divya Singh"
+                  placeholder="danapur_sm"
                   value={username}
                   onChange={e => setUsername(e.target.value)}
                   style={{

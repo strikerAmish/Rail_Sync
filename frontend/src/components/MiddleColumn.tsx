@@ -30,12 +30,22 @@ export const getEventCategory = (e: OperationalEvent): number => {
   if (e.is_suspended || (e.status as string) === 'SUSPENDED - EMERGENCY STOP') {
     return 1;
   }
+  // History tab: Stage 7 Normalized, Block Cleared, Audit Locked, Cancelled, Rejected
   if (e.fsm_stage === 7 || e.status === 'BLOCK_CLEARED' || e.status === 'AUDIT_LOCKED' || e.status === 'CANCELLED' || e.status === 'REJECTED') {
     return 2;
   }
-  if (e.fsm_stage === 6 || e.status === 'ACTIVE_IN_PROGRESS' || e.status === 'WORK_COMPLETED') {
+
+  // Statutory check: Work cannot be physically ongoing on track unless all required quorum sign-offs are granted!
+  const hasPendingApprovals = e.stakeholders && e.stakeholders.length > 0 && e.stakeholders.some(s => s.approval_status !== 'APPROVED');
+  const smApproval = e.stakeholders?.find(s => s.role === 'STATION_MASTER');
+  const isSmPending = smApproval ? smApproval.approval_status !== 'APPROVED' : false;
+
+  // Ongoing Work tab (Tab 0): ONLY if genuinely Stage 6 AND no statutory quorum sign-offs are pending
+  if ((e.fsm_stage === 6 || e.status === 'ACTIVE_IN_PROGRESS' || e.status === 'WORK_COMPLETED') && !hasPendingApprovals && !isSmPending) {
     return 0;
   }
+
+  // If any statutory approval is pending or stage < 6, route to Pending Approvals (Tab 1)
   return 1;
 };
 

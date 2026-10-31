@@ -9,9 +9,10 @@ import {
 } from 'lucide-react';
 import { OperationalEvent, ApprovalRole, Department, PiggybackedDepartment } from '../types';
 import {
-  acquireFencingToken, activateWork, completeWork, clearBlock,
+  acquireFencingToken, activateWork, completeWork, clearBlock, updateEventStage,
   emergencyAbort, escalateSla, submitApproval
 } from '../api';
+import { broadcastCorridorUpdate } from '../syncBridge';
 
 interface RightActionPaneProps {
   event: OperationalEvent | null;
@@ -145,7 +146,7 @@ export const RightActionPane: React.FC<RightActionPaneProps> = ({
   const effectiveStep = currentStepIdx;
 
   // Dynamic Stage Advance / Toggle as work progresses on track
-  const handleAdvanceStage = (targetStage: number) => {
+  const handleAdvanceStage = async (targetStage: number) => {
     if (!event || targetStage < 1 || targetStage > 7) return;
     const targetStep = STEPPER[targetStage - 1];
 
@@ -183,6 +184,7 @@ export const RightActionPane: React.FC<RightActionPaneProps> = ({
       }
     };
 
+    // 1. Immediately update local React state & active tab
     if (onUpdateEvent) {
       onUpdateEvent(updatedEvent);
     } else {
@@ -193,6 +195,24 @@ export const RightActionPane: React.FC<RightActionPaneProps> = ({
     }
 
     setActionMsg(`✓ FSM Lifecycle Stage moved to Stage ${targetStep.num}: ${targetStep.label} (${targetStep.status})`);
+
+    // 2. Persist to Backend API & release fencing token if Stage 7
+    try {
+      if (targetStep.stage === 7) {
+        await clearBlock(event.id);
+        broadcastCorridorUpdate('BLOCK_CLEARED', { eventId: event.id, status: 'BLOCK_CLEARED', fsm_stage: 7 });
+      } else {
+        await updateEventStage(event.id, targetStep.stage, targetStep.status, updatedEvent.station_actions);
+        broadcastCorridorUpdate('EVENT_UPDATED', updatedEvent);
+      }
+    } catch (err) {
+      console.warn('Backend stage update fallback:', err);
+      if (targetStep.stage === 7) {
+        broadcastCorridorUpdate('BLOCK_CLEARED', { eventId: event.id, status: 'BLOCK_CLEARED', fsm_stage: 7 });
+      } else {
+        broadcastCorridorUpdate('EVENT_UPDATED', updatedEvent);
+      }
+    }
   };
 
   const handleSelectFsmStage = (targetIdx: number) => {
@@ -1564,7 +1584,7 @@ export const RightActionPane: React.FC<RightActionPaneProps> = ({
           </div>
           <div>
             <span style={{ color: '#64748B', display: 'block', fontSize: 10.5 }}>ISSUED BY:</span>
-            <strong style={{ color: '#0F172A' }}>Divya Singh (SM/PNBE Desk #01)</strong>
+            <strong style={{ color: '#0F172A' }}>IIT_Patna (SM/PNBE Desk #01)</strong>
           </div>
           <div>
             <span style={{ color: '#64748B', display: 'block', fontSize: 10.5 }}>VALID UNTIL:</span>
@@ -1939,7 +1959,7 @@ export const RightActionPane: React.FC<RightActionPaneProps> = ({
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    Station Master (Divya Singh, SM/PNBE Desk #01)
+                    Station Master (IIT_Patna, SM/PNBE Desk #01)
                     {isSmApproved && (
                       <span style={{ fontSize: 10, fontWeight: 600, background: '#DCFCE7', color: '#16A34A', padding: '1px 6px', borderRadius: 4 }}>
                         ✓ MASTER SEAL GRANTED
@@ -2136,7 +2156,7 @@ export const RightActionPane: React.FC<RightActionPaneProps> = ({
               </div>
               <div>
                 <span style={{ color: '#64748B', display: 'block', fontSize: 10.5 }}>GRANTING STATION MASTER:</span>
-                <strong>Divya Singh (SM/PNBE Desk #01)</strong>
+                <strong>IIT_Patna (SM/PNBE Desk #01)</strong>
               </div>
             </div>
 

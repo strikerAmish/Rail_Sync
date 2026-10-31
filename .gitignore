@@ -25,3 +25,7 @@ infra/.terraform.lock.hcl
 # OS
 .DS_Store
 Thumbs.db
+
+# Field App
+field app/
+

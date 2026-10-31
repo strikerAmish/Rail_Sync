@@ -318,7 +318,7 @@ export const EmergencyStopButton: React.FC<EmergencyStopButtonProps> = ({
                     {reason.trim().length >= 10 ? '✓ Valid justification' : `${10 - reason.trim().length} more characters needed`}
                   </span>
                   <span style={{ fontSize: 11, color: '#94A3B8' }}>
-                    Authorized: {currentUser?.name || 'Divya Singh'} ({currentUser?.role || 'Station Master Desk'})
+                    Authorized: {currentUser?.name || 'IIT_Patna'} ({currentUser?.role || 'Station Master Desk'})
                   </span>
                 </div>
               </div>

@@ -52,7 +52,7 @@ export const CorridorVideoWall: React.FC<CorridorVideoWallProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-300">
-              Wardha–Sevagram HDN section operating beyond maximum rated headway capacity. Strict inter-departmental interlocking required.
+              Danapur–Patna HDN section operating beyond maximum rated headway capacity. Strict inter-departmental interlocking required.
             </p>
           </div>
         </div>
@@ -82,10 +82,10 @@ export const CorridorVideoWall: React.FC<CorridorVideoWallProps> = ({
           <div>
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               <Layers className="w-5 h-5 text-blue-400" />
-              Real-Time Corridor Section Visualizer: Wardha (WR) ⇄ Sevagram (SEGM)
+              Real-Time Corridor Section Visualizer: Danapur (DNR) ⇄ Patna Jn (PNBE)
             </h2>
             <p className="text-xs text-slate-400 font-mono">
-              Central Railway • Nagpur Division (NGP) • Geofenced Chainage KM 140.000 to KM 148.000
+              East Central Railway • Danapur Division (DNR) • Geofenced Chainage KM 539.200 to KM 549.000
             </p>
           </div>
 
@@ -110,8 +110,8 @@ export const CorridorVideoWall: React.FC<CorridorVideoWallProps> = ({
           {/* Station Markers */}
           <div className="flex justify-between text-xs font-mono text-slate-400 mb-2 border-b border-slate-800 pb-2">
             <div className="text-left">
-              <div className="font-bold text-blue-400 text-sm">WARDHA JN (WR)</div>
-              <div>KM 140.000 • RRI Panel</div>
+              <div className="font-bold text-blue-400 text-sm">DANAPUR JN (DNR)</div>
+              <div>KM 539.200 • Electronic Interlocking</div>
             </div>
             <div className="text-center">
               <div className="font-semibold text-slate-300">LC-64 North Gate</div>
@@ -122,8 +122,8 @@ export const CorridorVideoWall: React.FC<CorridorVideoWallProps> = ({
               <div>KM 143.040</div>
             </div>
             <div className="text-right">
-              <div className="font-bold text-blue-400 text-sm">SEVAGRAM JN (SEGM)</div>
-              <div>KM 148.000 • Electronic Interlock</div>
+              <div className="font-bold text-blue-400 text-sm">PATNA JN (PNBE)</div>
+              <div>KM 549.000 • Electronic Interlock</div>
             </div>
           </div>
 

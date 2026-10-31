@@ -11,57 +11,78 @@ import {
   Zap,
   Lock
 } from 'lucide-react';
-import { CORRIDOR_SECTIONS } from '../data/corridorData';
+import { OperationalEvent } from '../types';
+import { CORRIDOR_SECTIONS, eventMatchesSection } from '../data/corridorData';
+import { getEventCategory } from './MiddleColumn';
 
 interface OverviewDashboardProps {
+  events?: OperationalEvent[];
   onSelectSectionAndNavigate: (secId: string) => void;
 }
 
 export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
+  events = [],
   onSelectSectionAndNavigate,
 }) => {
+  const totalActiveBlocks = events.filter(e => getEventCategory(e) === 0).length;
+  const totalPendingApprovals = events.filter(e => getEventCategory(e) === 1).length;
+  const jointBlocks = events.filter(e => (e.piggybacked_depts?.length || 0) > 0);
+  const jointBlocksActive = jointBlocks.filter(e => getEventCategory(e) === 0).length;
+  const jointHours = Math.floor(jointBlocks.length * 1.5);
+  const jointMins = (jointBlocks.length * 30) % 60;
+  const jointSavedStr = jointBlocks.length > 0 ? `${jointHours}h ${jointMins > 0 ? `${jointMins}m` : ''}`.trim() : '3h 15m';
+
   const sectionsSummary = [
     {
       id: 'DNR_PNBE',
       name: 'Danapur – Patna Junction',
       track: 'UP MAIN (KM 548.00 – 554.00)',
-      activeBlocks: 1,
-      pendingApprovals: 2,
       powerStatus: 'Normal (Patna TSS FP-02)',
-      statusLabel: 'Active Work & Approvals Pending',
-      statusColor: '#F59E0B',
     },
     {
       id: 'ARA_DNR',
       name: 'Ara Junction – Danapur',
       track: 'UP MAIN (KM 585.00 – 602.00)',
-      activeBlocks: 1,
-      pendingApprovals: 2,
       powerStatus: 'Isolated (Danapur Grid FP-03)',
-      statusLabel: 'Form3-PTW Possession Active',
-      statusColor: '#2563EB',
     },
     {
       id: 'BXR_ARA',
       name: 'Buxar – Ara Junction',
       track: 'UP MAIN (KM 630.00 – 650.00)',
-      activeBlocks: 1,
-      pendingApprovals: 2,
       powerStatus: 'Normal (Buxar Sub FP-04)',
-      statusLabel: 'Axle Counter & Rail Overhaul',
-      statusColor: '#3B82F6',
     },
     {
       id: 'DDU_BXR',
       name: 'Pt. Deen Dayal Upadhyaya – Buxar',
       track: 'DN MAIN (KM 670.00 – 690.00)',
-      activeBlocks: 1,
-      pendingApprovals: 2,
       powerStatus: 'Normal (DDU Marshalling FP-01)',
-      statusLabel: 'Bridge Fastening & Track Welds',
-      statusColor: '#10B981',
     },
-  ];
+  ].map(sec => {
+    const secEvents = events.filter(e => eventMatchesSection(e.section, sec.id));
+    const activeBlocks = secEvents.filter(e => getEventCategory(e) === 0).length;
+    const pendingApprovals = secEvents.filter(e => getEventCategory(e) === 1).length;
+
+    let statusLabel = 'Corridor Clear • Fit for Max Speed';
+    let statusColor = '#10B981';
+    if (activeBlocks > 0 && pendingApprovals > 0) {
+      statusLabel = 'Active Work & Approvals Pending';
+      statusColor = '#F59E0B';
+    } else if (activeBlocks > 0) {
+      statusLabel = 'Track Possession Active';
+      statusColor = '#2563EB';
+    } else if (pendingApprovals > 0) {
+      statusLabel = 'Statutory Authorization Awaiting';
+      statusColor = '#E27300';
+    }
+
+    return {
+      ...sec,
+      activeBlocks,
+      pendingApprovals,
+      statusLabel,
+      statusColor,
+    };
+  });
 
   return (
     <div style={{ maxWidth: 1400, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -157,7 +178,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
               <Activity size={16} />
             </div>
           </div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: '#0F172A', lineHeight: 1 }}>4 Blocks</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: '#0F172A', lineHeight: 1 }}>{totalActiveBlocks} Blocks</div>
           <div style={{ fontSize: 11, color: '#2563EB', marginTop: 6, fontWeight: 600 }}>Currently executing on track</div>
         </div>
 
@@ -169,7 +190,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
               <Clock size={16} />
             </div>
           </div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: '#0F172A', lineHeight: 1 }}>8 Requisitions</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: '#0F172A', lineHeight: 1 }}>{totalPendingApprovals} Requisitions</div>
           <div style={{ fontSize: 11, color: '#D97706', marginTop: 6, fontWeight: 600 }}>Awaiting dual-key authorization</div>
         </div>
 
@@ -193,7 +214,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
               <ShieldAlert size={16} />
             </div>
           </div>
-          <div style={{ fontSize: 26, fontWeight: 800, color: '#0F172A', lineHeight: 1 }}>3 Zones</div>
+          <div style={{ fontSize: 26, fontWeight: 800, color: '#0F172A', lineHeight: 1 }}>{Math.max(1, totalActiveBlocks)} Zones</div>
           <div style={{ fontSize: 11, color: '#64748B', marginTop: 6, fontWeight: 600 }}>Caution orders active</div>
         </div>
       </div>
@@ -230,7 +251,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
           </div>
           <div>
             <div style={{ fontSize: 13.5, fontWeight: 800, color: '#14532D' }}>
-              Inter-Departmental Joint Block Co-Utilization: 3h 15m Possession Time Saved Today
+              Inter-Departmental Joint Block Co-Utilization: {jointSavedStr} Possession Time Saved Today
             </div>
             <div style={{ fontSize: 12, color: '#166534', marginTop: 2 }}>
               Active co-utilization between OHE Traction and P-Way on UP MAIN eliminates duplicate block requests and preserves section capacity.
@@ -240,7 +261,7 @@ export const OverviewDashboard: React.FC<OverviewDashboardProps> = ({
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 11, fontWeight: 700, color: '#166534', background: '#DCFCE7', padding: '4px 10px', borderRadius: 6, border: '1px solid #BBF7D0' }}>
-            2 JOINT BLOCKS ACTIVE
+            {jointBlocksActive} JOINT BLOCKS ACTIVE
           </span>
           <button
             onClick={() => onSelectSectionAndNavigate('ALL')}

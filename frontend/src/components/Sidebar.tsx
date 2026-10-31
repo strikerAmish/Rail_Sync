@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Train, LayoutDashboard, CheckSquare, ClockIcon, HelpCircle, ArrowRight, Flame, Smartphone, MessageSquare
+  Train, LayoutDashboard, CheckSquare, ClockIcon, HelpCircle, ArrowRight, Flame, MessageSquare
 } from 'lucide-react';
 
 interface SidebarProps {

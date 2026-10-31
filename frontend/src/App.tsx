@@ -22,6 +22,7 @@ import { useChatStore }      from './hooks/useChatStore';
 import { SupportDrawer }     from './components/support/SupportDrawer';
 import { useSupportStore }   from './hooks/useSupportStore';
 import { CheckCircle2, X }   from 'lucide-react';
+import { onCorridorUpdate, broadcastCorridorUpdate } from './syncBridge';
 
 export type View = 'workspace' | 'audit' | 'overview' | 'today' | 'chaos' | 'messages';
 
@@ -69,12 +70,19 @@ export function App() {
   const [wsConnected,       setWsConnected]       = useState(false);
   const [canaryHealthy,     setCanaryHealthy]     = useState(true);
   const [isOfflineMode,     setIsOfflineMode]     = useState(false);
-  const [ambientNotifs,     setAmbientNotifs]     = useState<string[]>([
-    '23:05:12Z [TPC-DDU]: Circuit breaker trip telemetry verified at Feeding Post FP-02 (Danapur TSS).',
-    '23:04:45Z [SM-PNBE]: Physical point clamp #14A padlocked. Reverse route locked against Up Main at Patna Jn.',
-    '23:02:18Z [GSR-INVARIANT]: 6 Invariants evaluated. Dual-key approval matrix dispatched.',
-    '23:00:00Z [COA-FOIS]: Danapur Section Controller pacing freight rake N/BOXNHL-243 via Down Main at TSR 30 km/h.',
-  ]);
+  const [ambientNotifs,     setAmbientNotifs]     = useState<string[]>(() => {
+    const now = new Date();
+    const fmt = (minsAgo: number) => {
+      const d = new Date(now.getTime() - minsAgo * 60000);
+      return d.toISOString().substring(11, 19) + 'Z';
+    };
+    return [
+      `${fmt(1)} [TPC-DDU]: Circuit breaker trip telemetry verified at Feeding Post FP-02 (Danapur TSS).`,
+      `${fmt(3)} [SM-PNBE]: Physical point clamp #14A padlocked. Reverse route locked against Up Main at Patna Jn.`,
+      `${fmt(5)} [GSR-INVARIANT]: 6 Invariants evaluated. Dual-key approval matrix dispatched.`,
+      `${fmt(8)} [COA-FOIS]: Danapur Section Controller pacing freight rake N/BOXNHL-243 via Down Main at TSR 30 km/h.`,
+    ];
+  });
 
   const addAmbientNotification = useCallback((msg: string) => {
     setAmbientNotifs(prev => [msg, ...prev.slice(0, 30)]);
@@ -168,13 +176,23 @@ export function App() {
     events.forEach(event => {
       tabCounts[getEventCategory(event)]++;
     });
+    const pendingSmCount = events.filter(e => {
+      const isPending = getEventCategory(e) === 1;
+      const sm = e.stakeholders?.find(s => s.role === 'STATION_MASTER' || s.department === 'OPERATING');
+      return isPending && (!sm || sm.approval_status === 'PENDING');
+    }).length;
+
+    const jointCount = events.filter(e => (e.piggybacked_depts?.length || 0) > 0).length;
+    const jointHours = Math.floor(jointCount * 1.5);
+    const jointMins = (jointCount * 30) % 60;
+    const savedTime = jointCount > 0 ? `${jointHours}h ${jointMins > 0 ? `${jointMins}m` : ''}`.trim() : '3h 15m';
+
     return {
       pendingApprovals: tabCounts[1],
       workInProgress: tabCounts[0],
-      // Derive Teams on Track directly from the Ongoing Work tab data (4)
       teamsOnTrack: tabCounts[0],
-      pendingForWardha: 4,
-      savedTime: '3h 15m',
+      pendingSm: pendingSmCount,
+      savedTime,
     };
   }, [events]);
 
@@ -199,6 +217,9 @@ export function App() {
       } catch (_) {}
       return updated;
     });
+
+    // Broadcast across windows/tabs to mobile app
+    broadcastCorridorUpdate('EVENT_CREATED', newEvent);
 
     // Reset filters to ALL so the newly created event is visible
     setSelectedSectionId('ALL');
@@ -228,17 +249,37 @@ export function App() {
     try {
       const data = await fetchEvents();
       if (Array.isArray(data) && data.length > 0) {
-        // Merge fetched events with baseline so all sections remain available,
-        // preserving client-side suspension/resumption state
+        // Merge live fetched events with local state so authoritative backend updates
+        // are reflected while preserving client-side emergency stop state
         setEvents(prev => {
           const prevMap = new Map(prev.map(p => [p.id, p]));
           const mergedFetched = data.map(d => {
             const existing = prevMap.get(d.id);
             if (existing) {
+              const isLocallyNormalized = existing.fsm_stage === 7 || existing.status === 'BLOCK_CLEARED' || existing.status === 'AUDIT_LOCKED';
+              const isBackendNormalized = d.fsm_stage === 7 || d.status === 'BLOCK_CLEARED' || d.status === 'AUDIT_LOCKED';
+
+              if (isLocallyNormalized && !isBackendNormalized) {
+                return {
+                  ...d,
+                  ...existing,
+                  fsm_stage: 7,
+                  status: existing.status || 'BLOCK_CLEARED',
+                  status_color: '#16A34A',
+                  station_actions: {
+                    ...(d.station_actions || {}),
+                    ...(existing.station_actions || {}),
+                    power_cut_granted: false,
+                    traffic_block_granted: false,
+                  }
+                };
+              }
+
               return {
-                ...d,
                 ...existing,
-                station_actions: existing.station_actions || d.station_actions,
+                ...d,
+                is_suspended: existing.is_suspended ?? d.is_suspended,
+                station_actions: d.station_actions || existing.station_actions,
               };
             }
             return d;
@@ -325,6 +366,85 @@ export function App() {
     };
   }, [loadEvents]);
 
+  // ── Real-Time Mobile Field App Synchronization Bridge ────────
+  useEffect(() => {
+    const unsubscribe = onCorridorUpdate((msg) => {
+      const ts = new Date().toLocaleTimeString('en-GB', { hour12: false });
+      if (msg.type === 'EVENT_CREATED') {
+        const newEvent = msg.data;
+        if (newEvent && newEvent.id) {
+          setEvents(prev => {
+            const exists = prev.some(e => e.id === newEvent.id);
+            return exists ? prev.map(e => e.id === newEvent.id ? { ...e, ...newEvent } : e) : [newEvent, ...prev];
+          });
+          setSelectedSectionId('ALL');
+          setSelectedDept('ALL');
+          setActiveTab(1); // 1 = Pending Approvals tab
+          setSelectedEvent(newEvent);
+          setHighlightedEventId(newEvent.id);
+          setActiveView('workspace');
+          setAmbientNotifs(prev => [
+            `${ts}Z [MOBILE-FIELD-APP]: Requisition received from mobile app: ${newEvent.id} (${newEvent.section} • ${newEvent.track_id})`,
+            ...prev.slice(0, 30),
+          ]);
+          setToastMessage(`New Work Request ${newEvent.id} from Field Crew appeared in Approval Queue!`);
+          setTimeout(() => setToastMessage(null), 6000);
+        }
+        loadEvents();
+      } else if (msg.type === 'WORK_ACTIVATED') {
+        const evId = msg.data?.eventId || msg.data?.id;
+        setAmbientNotifs(prev => [
+          `${ts}Z [MOBILE-FIELD-APP]: Work commenced on track for ${evId} by Field Supervisor`,
+          ...prev.slice(0, 30),
+        ]);
+        setToastMessage(`Work ${evId} commenced on track by Field Supervisor!`);
+        setTimeout(() => setToastMessage(null), 6000);
+        loadEvents();
+      } else if (msg.type === 'WORK_COMPLETED') {
+        const evId = msg.data?.eventId || msg.data?.id;
+        setAmbientNotifs(prev => [
+          `${ts}Z [MOBILE-FIELD-APP]: Work completed and track cleared for ${evId}`,
+          ...prev.slice(0, 30),
+        ]);
+        setToastMessage(`Work ${evId} certified completed by Field Supervisor!`);
+        setTimeout(() => setToastMessage(null), 6000);
+        loadEvents();
+      } else if (msg.type === 'PHOTO_UPDATED') {
+        const evId = msg.data?.eventId || msg.data?.id;
+        setAmbientNotifs(prev => [
+          `${ts}Z [MOBILE-FIELD-APP]: GPS Watermarked photo proof updated for ${evId}`,
+          ...prev.slice(0, 30),
+        ]);
+        setToastMessage(`Geotagged Field Photo Proof attached to ${evId}!`);
+        setTimeout(() => setToastMessage(null), 6000);
+        loadEvents();
+      } else if (msg.type === 'BLOCK_CLEARED' || msg.type === 'TRACK_NORMALIZED') {
+        const evId = msg.data?.eventId || msg.data?.id;
+        if (evId) {
+          setEvents(prev => prev.map(e => e.id === evId ? {
+            ...e,
+            status: 'BLOCK_CLEARED',
+            fsm_stage: 7,
+            status_color: '#16A34A',
+            station_actions: {
+              ...(e.station_actions || {}),
+              power_cut_granted: false,
+              traffic_block_granted: false,
+            }
+          } : e));
+          setAmbientNotifs(prev => [
+            `${ts}Z [STATION-MASTER]: Track normalized & block cleared for ${evId}. Line fit certified.`,
+            ...prev.slice(0, 30),
+          ]);
+          setToastMessage(`Track for ${evId} normalized! Moved to Statutory Sealed History.`);
+          setTimeout(() => setToastMessage(null), 6000);
+        }
+      }
+    });
+
+    return unsubscribe;
+  }, [loadEvents]);
+
   // ── Ensure selectedEvent always belongs to the current section filter ──
   useEffect(() => {
     if (selectedSectionId !== 'ALL' && selectedEvent) {
@@ -340,6 +460,21 @@ export function App() {
   const handleLocalSign = (updatedEvent: OperationalEvent) => {
     setEvents(prev => prev.map(e => e.id === updatedEvent.id ? updatedEvent : e));
     setSelectedEvent(updatedEvent);
+
+    // Persist to user events storage so custom/modified events retain their stage
+    try {
+      const saved = localStorage.getItem(USER_EVENTS_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          const updated = parsed.map((p: any) => p.id === updatedEvent.id ? updatedEvent : p);
+          if (!updated.some((p: any) => p.id === updatedEvent.id)) {
+            updated.unshift(updatedEvent);
+          }
+          localStorage.setItem(USER_EVENTS_STORAGE_KEY, JSON.stringify(updated));
+        }
+      }
+    } catch (_) {}
 
     // Auto-navigate tab to follow the event as work progresses
     if (updatedEvent.fsm_stage === 6 && activeTab !== 0) {
@@ -480,6 +615,7 @@ export function App() {
         {activeView === 'overview' && (
           <div style={{ flex: 1, overflowY: 'auto', padding: '24px 32px', background: '#F8FAFC' }}>
             <OverviewDashboard
+              events={events}
               onSelectSectionAndNavigate={(secId) => {
                 setSelectedSectionId(secId);
                 setActiveView('workspace');
@@ -551,6 +687,8 @@ export function App() {
           ongoing: glanceCounts.workInProgress,
           teamsOnTrack: glanceCounts.teamsOnTrack,
           history: glanceCounts.teamsOnTrack,
+          pendingSm: glanceCounts.pendingSm,
+          savedTime: glanceCounts.savedTime,
         }}
         anchorRef={logoButtonRef}
       />

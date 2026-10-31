@@ -133,6 +133,21 @@ export async function clearBlock(eventId: string): Promise<any> {
   return res.json();
 }
 
+export async function updateEventStage(
+  eventId: string,
+  stage: number,
+  status?: string,
+  station_actions?: any
+): Promise<any> {
+  const res = await fetchWithTrace(`${API_BASE}/events/${eventId}/stage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ stage, status, station_actions }),
+  });
+  if (!res.ok) throw new Error('Failed to update stage');
+  return res.json();
+}
+
 export async function emergencyAbort(eventId: string, officerId: string, reason: string): Promise<any> {
   const res = await fetchWithTrace(`${API_BASE}/events/${eventId}/abort`, {
     method: 'POST',

@@ -309,7 +309,22 @@ async def create_operational_event(payload: OperationalEventCreate, request: Req
     CQRS Write Command: Creates new block requisition in PostgreSQL transactional storage.
     Commits Transactional Outbox, updates Redis read projection, and broadcasts via WebSocket.
     """
-    event_id = str(uuid.uuid4())
+    # Determine appropriate railway ID
+    if getattr(payload, "id", None) and payload.id:
+        event_id = payload.id
+    else:
+        dept_code = "OHE"
+        if "PWAY" in (payload.originator_id or "") or "ENG" in (payload.originator_id or ""):
+            dept_code = "ENG"
+        elif "SIG" in (payload.originator_id or ""):
+            dept_code = "SIG"
+        elif "CW" in (payload.originator_id or "") or "MECH" in (payload.originator_id or ""):
+            dept_code = "CW"
+        elif "SAF" in (payload.originator_id or ""):
+            dept_code = "SAF"
+        random_digits = Math_random_id = str(uuid.uuid4().int)[:5]
+        event_id = f"EVT-{dept_code}-2026-0{random_digits}"
+
     now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
     # 1. Resolve 6 Invariants
@@ -326,12 +341,16 @@ async def create_operational_event(payload: OperationalEventCreate, request: Req
     conn = get_db_connection()
     cur = conn.cursor()
 
+    # Determine initial fencing token if not set
+    fencing_token = getattr(payload, "fencing_token", None) or (800 + (uuid.uuid4().int % 199))
+
     cur.execute("""
-    INSERT INTO operational_events (
+    INSERT OR REPLACE INTO operational_events (
         id, division, section, track_id, km_start, km_end, status,
         requested_start, requested_end, fencing_token, impact_vector,
-        description, originator_id, field_photo, piggybacked_depts, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        description, originator_id, field_photo, piggybacked_depts,
+        station_actions, digital_permit, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         event_id,
         payload.division,
@@ -339,15 +358,17 @@ async def create_operational_event(payload: OperationalEventCreate, request: Req
         payload.track_id,
         payload.km_start,
         payload.km_end,
-        EventStatus.SUBMITTED.value,
+        EventStatus.AWAITING_APPROVAL.value,
         payload.requested_start.isoformat(),
         payload.requested_end.isoformat(),
-        None,
+        fencing_token,
         json.dumps(payload.impact_vector.model_dump()),
         payload.description or "Railway Track Requisition",
         payload.originator_id,
         json.dumps(payload.field_photo) if payload.field_photo else None,
         json.dumps(payload.piggybacked_depts) if payload.piggybacked_depts else None,
+        json.dumps(payload.station_actions) if payload.station_actions else None,
+        json.dumps(payload.digital_permit) if payload.digital_permit else None,
         now,
         now
     ))
@@ -356,7 +377,7 @@ async def create_operational_event(payload: OperationalEventCreate, request: Req
     initial_stks = DynamicDependencyEngine.generate_initial_stakeholders(event_id)
     for stk in initial_stks:
         cur.execute("""
-        INSERT INTO event_stakeholders (
+        INSERT OR IGNORE INTO event_stakeholders (
             id, event_id, department, role, officer_id, approval_status, signature_hash, signed_at, rejection_reason
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
@@ -382,13 +403,14 @@ async def create_operational_event(payload: OperationalEventCreate, request: Req
 
     # 3. Synchronize Redis Read Model Projections
     projection_store.invalidate_projections(event_id)
-    _hydrate_single_event_projection(event_id)
+    detail = _hydrate_single_event_projection(event_id)
     _hydrate_all_events_projection()
 
     # 4. WebSocket Broadcast
     await broadcast_event({
         "type": "NEW_REQUISITION_SUBMITTED",
         "event_id": event_id,
+        "event": detail,
         "section": payload.section,
         "track_id": payload.track_id,
         "km_start": payload.km_start,
@@ -396,13 +418,7 @@ async def create_operational_event(payload: OperationalEventCreate, request: Req
         "timestamp": now
     })
 
-    return {
-        "id": event_id,
-        "status": EventStatus.SUBMITTED.value,
-        "fsm_stage": 2,
-        "invariants": invariants,
-        "message": "Operational Event submitted successfully. 6 Invariants resolved."
-    }
+    return detail
 
 
 @router.post("/{event_id}/lock", tags=["Operational Events (CQRS)"])
@@ -658,9 +674,13 @@ async def clear_operational_block(event_id: str):
         permits=permits
     )
 
-    # 3. Update status to AUDIT_LOCKED (Stage 11)
-    cur.execute("UPDATE operational_events SET status = ?, updated_at = ? WHERE id = ?",
-                (EventStatus.AUDIT_LOCKED.value, now, event_id))
+    # 3. Update status to BLOCK_CLEARED (Stage 7) and reset power cut & traffic block
+    station_actions = json.loads(row["station_actions"]) if ("station_actions" in row.keys() and row["station_actions"]) else {}
+    station_actions["power_cut_granted"] = False
+    station_actions["traffic_block_granted"] = False
+
+    cur.execute("UPDATE operational_events SET status = ?, station_actions = ?, updated_at = ? WHERE id = ?",
+                (EventStatus.BLOCK_CLEARED.value, json.dumps(station_actions), now, event_id))
     conn.commit()
     conn.close()
 
@@ -673,16 +693,62 @@ async def clear_operational_block(event_id: str):
         "event_id": event_id,
         "audit_block_number": audit_block.block_number,
         "block_hash": audit_block.block_hash,
-        "status": EventStatus.AUDIT_LOCKED.value
+        "status": EventStatus.BLOCK_CLEARED.value
     })
 
     return {
-        "status": EventStatus.AUDIT_LOCKED.value,
+        "status": EventStatus.BLOCK_CLEARED.value,
         "event_id": event_id,
         "fencing_token_released": True,
         "audit_block": audit_block.to_dict(),
         "message": "Block cleared. SHA-256 Merkle block locked into S3 WORM immutable ledger."
     }
+
+
+@router.post("/{event_id}/stage", tags=["Operational Events (CQRS)"])
+async def update_event_stage(event_id: str, payload: Dict[str, Any]):
+    """Updates operational event lifecycle stage and station actions directly."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM operational_events WHERE id = ?", (event_id,))
+    row = cur.fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Event not found")
+
+    now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    new_status = payload.get("status")
+    stage = payload.get("stage")
+    if not new_status and stage == 7:
+        new_status = EventStatus.BLOCK_CLEARED.value
+    elif not new_status and stage == 6:
+        new_status = EventStatus.ACTIVE_IN_PROGRESS.value
+    elif not new_status and stage == 5:
+        new_status = EventStatus.APPROVED.value
+
+    station_actions = json.loads(row["station_actions"]) if ("station_actions" in row.keys() and row["station_actions"]) else {}
+    if payload.get("station_actions"):
+        station_actions.update(payload["station_actions"])
+    elif stage == 7 or new_status in ["BLOCK_CLEARED", "AUDIT_LOCKED"]:
+        station_actions["power_cut_granted"] = False
+        station_actions["traffic_block_granted"] = False
+
+    cur.execute("UPDATE operational_events SET status = ?, station_actions = ?, updated_at = ? WHERE id = ?",
+                (new_status or row["status"], json.dumps(station_actions), now, event_id))
+    conn.commit()
+    conn.close()
+
+    projection_store.invalidate_projections(event_id)
+    _hydrate_single_event_projection(event_id)
+    _hydrate_all_events_projection()
+
+    await broadcast_event({
+        "type": "STAGE_CHANGED",
+        "event_id": event_id,
+        "status": new_status,
+        "stage": stage
+    })
+    return {"status": "SUCCESS", "event_id": event_id, "new_status": new_status}
 
 
 @router.post("/{event_id}/abort", tags=["Operational Events (CQRS)"])

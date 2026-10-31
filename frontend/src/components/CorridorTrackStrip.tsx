@@ -47,10 +47,10 @@ export const CorridorTrackStrip: React.FC<CorridorTrackStripProps> = ({
         <div className="flex items-center gap-3">
           <Activity className="w-3.5 h-3.5 text-blue-400" />
           <span className="text-xs font-semibold text-slate-200">
-            Wardha ⇄ Sevagram Corridor Visualizer
+            Danapur ⇄ Patna Junction Corridor Visualizer
           </span>
           <span className="text-[10px] font-mono text-slate-500">
-            KM 140.000 – KM 148.000 • High-Density Network
+            KM 548.000 – KM 554.000 • High-Density Network
           </span>
           {!collapsed && (
             <div className="flex items-center gap-3 ml-4 text-[10px] font-mono">
@@ -85,17 +85,17 @@ export const CorridorTrackStrip: React.FC<CorridorTrackStripProps> = ({
           <div className="flex justify-between items-center text-[10px] font-mono border-b border-slate-800/60 pb-1">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-sm bg-blue-500 inline-block" />
-              <span className="font-bold text-blue-300">WARDHA JN (WR)</span>
-              <span className="text-slate-500">KM 140.000</span>
+              <span className="font-bold text-blue-300">DANAPUR JN (DNR)</span>
+              <span className="text-slate-500">KM 539.200</span>
             </div>
             <div className="flex items-center gap-4 text-slate-400">
-              <span>LC-64 North (KM 142.100)</span>
+              <span>Phulwari Sharif (KM 544.100)</span>
               <span>•</span>
-              <span>Crossover #14A/B (KM 143.040)</span>
+              <span>Crossover #14A/B (KM 547.040)</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-slate-500">KM 148.000</span>
-              <span className="font-bold text-blue-300">SEVAGRAM JN (SEGM)</span>
+              <span className="text-slate-500">KM 549.000</span>
+              <span className="font-bold text-blue-300">PATNA JN (PNBE)</span>
               <span className="w-2 h-2 rounded-sm bg-blue-500 inline-block" />
             </div>
           </div>

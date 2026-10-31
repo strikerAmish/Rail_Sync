@@ -129,14 +129,14 @@ export const ESCALATION_MATRIX: EscalationLevel[] = [
 export const DIRECTORY_CONTACTS: SupportContact[] = [
   {
     id: 'cnt-01',
-    name: 'Divya Singh',
+    name: 'IIT_Patna',
     designation: 'Station Master (Junction In-Charge)',
     department: 'OPERATING',
-    section: 'Patna Jn (PNBE)',
+    section: 'Danapur (DNR) / Patna Jn (PNBE)',
     extension: 'Ext. 4050',
     phone: '+91 94318 04050',
     isOnDuty: true,
-    avatarInitials: 'DS',
+    avatarInitials: 'IP',
     dutyShift: '06:00 - 14:00 (Shift A)',
   },
   {

@@ -483,7 +483,8 @@ export const MessagesPage: React.FC<MessagesPageProps> = ({ currentUser, chatSto
             {/* Message Bubbles */}
             {filteredMessages.map(msg => {
               const isMe =
-                msg.sender.toLowerCase().includes('ravi amish') ||
+                msg.sender.toLowerCase().includes('iit_patna') ||
+                msg.sender.toLowerCase().includes('worker_a') ||
                 msg.sender.toLowerCase().includes('station master desk') ||
                 msg.role === 'CURRENT_USER';
 

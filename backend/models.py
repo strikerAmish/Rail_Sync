@@ -37,6 +37,8 @@ class Department(str, Enum):
     CIVIL_P_WAY = "CIVIL_P_WAY"
     S_AND_T = "S_AND_T"
     MECHANICAL_CW = "MECHANICAL_CW"
+    SAFETY = "SAFETY"
+    COMMERCIAL = "COMMERCIAL"
 
 
 class ApprovalRole(str, Enum):
@@ -105,6 +107,7 @@ class StatutoryPermit(BaseModel):
 # Operational Event Payloads
 # -------------------------------------------------------------
 class OperationalEventCreate(BaseModel):
+    id: Optional[str] = None
     division: str = Field("DNR", description="Division, e.g., DNR (Danapur)")
     section: str = Field("Danapur–Patna Junction", description="Section, e.g., Danapur–Patna Junction")
     track_id: str = Field("UP_MAIN", description="Target Track: UP_MAIN, DN_MAIN, YARD_01")

@@ -45,15 +45,15 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   const [liveFeedOpen, setLiveFeedOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
-  const displayName = currentUser?.name || 'Divya Singh';
+  const displayName = currentUser?.name || 'IIT_Patna';
   const displayRole = currentUser?.role || 'Station Master Desk';
   const displayInitials = displayName
-    .split(' ')
+    .split(/[\s_]+/)
     .filter(Boolean)
     .map(p => p[0])
     .join('')
     .substring(0, 2)
-    .toUpperCase() || 'DS';
+    .toUpperCase() || 'IP';
 
   const opNotifs = ambientNotifications.filter(n => !n.includes('INITIAL_SNAPSHOT'));
 

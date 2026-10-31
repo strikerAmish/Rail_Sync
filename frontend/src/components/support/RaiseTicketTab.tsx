@@ -54,7 +54,7 @@ export const RaiseTicketTab: React.FC<RaiseTicketTabProps> = ({
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
   const [contactInfo, setContactInfo] = useState(
-    currentUser ? `${currentUser.name} (${currentUser.role}) Ext. 4022` : 'Ravi Amish (SM Desk) Ext. 4022'
+    currentUser ? `${currentUser.name} (${currentUser.role}) Ext. 4022` : 'IIT_Patna (SM Desk) Ext. 4022'
   );
   const [attachments, setAttachments] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -517,7 +517,7 @@ export const RaiseTicketTab: React.FC<RaiseTicketTabProps> = ({
       >
         <Info size={13} color="#94A3B8" className="shrink-0" />
         <div>
-          <strong>Auto-attached context:</strong> Route ({window.location.pathname || '/workspace'}), User ({currentUser?.name || 'Ravi Amish'}), Timestamp (UTC).
+          <strong>Auto-attached context:</strong> Route ({window.location.pathname || '/workspace'}), User ({currentUser?.name || 'IIT_Patna'}), Timestamp (UTC).
         </div>
       </div>
 

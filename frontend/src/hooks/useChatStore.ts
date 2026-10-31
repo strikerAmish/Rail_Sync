@@ -282,7 +282,7 @@ export function useChatStore(currentUser?: { name: string; role: string; departm
         overrideSender ||
         (currentUser?.name
           ? `${currentUser.name} (${currentUser.role})`
-          : 'Divya Singh (Station Master Desk)');
+          : 'IIT_Patna (Station Master Desk)');
       const senderRole = overrideRole || currentUser?.role || 'STATION_MASTER';
       const senderDept = currentUser?.department || 'OPERATING';
 

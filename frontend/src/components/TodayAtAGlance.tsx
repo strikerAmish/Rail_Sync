@@ -54,6 +54,8 @@ export interface TodayAtAGlanceProps {
     pending: number;   // maps to tabCounts[1]
     ongoing: number;   // maps to tabCounts[0]
     history: number;   // maps to tabCounts[2]
+    pendingSm?: number;
+    savedTime?: string;
   };
 }
 
@@ -145,6 +147,8 @@ export const TodayAtAGlance: React.FC<TodayAtAGlanceProps> = ({
   const pending = liveCounts?.pending ?? GLANCE_DATA.pendingApprovals;
   const ongoing = liveCounts?.ongoing ?? GLANCE_DATA.workInProgress;
   const history = liveCounts?.history ?? GLANCE_DATA.teamsOnTrack;
+  const pendingSm = liveCounts?.pendingSm ?? 4;
+  const savedTime = liveCounts?.savedTime ?? GLANCE_DATA.savedTime;
 
   // Card definitions – add more cards here to extend the view
   const cards: CardDef[] = [
@@ -157,7 +161,7 @@ export const TodayAtAGlance: React.FC<TodayAtAGlanceProps> = ({
       chipText:    '#92400E',
       count:       pending,
       label:       'Pending Approvals',
-      helper:      `${GLANCE_DATA.pendingForWardha} need Wardha Station Master`,
+      helper:      `${pendingSm} need Station Master (IIT_Patna) action`,
       tabIndex:    1,
       accentColor: '#E27300',
     },
@@ -183,7 +187,7 @@ export const TodayAtAGlance: React.FC<TodayAtAGlanceProps> = ({
       chipText:    '#475569',
       count:       history,
       label:       'Teams on Track',
-      helper:      `Joint possession saved ${GLANCE_DATA.savedTime}`,
+      helper:      `Joint possession saved ${savedTime}`,
       tabIndex:    2,
       accentColor: '#0F172A',
     },

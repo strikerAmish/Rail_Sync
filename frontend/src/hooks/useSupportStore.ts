@@ -66,15 +66,15 @@ export const INITIAL_DEMO_TICKETS: SupportTicket[] = [
     attachments: [
       'https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=800&q=80',
     ],
-    contactInfo: 'Ravi Amish (Ext. 4050)',
+    contactInfo: 'Worker_A (Ext. 4050)',
     status: 'In Progress',
-    createdBy: 'Ravi Amish',
+    createdBy: 'Worker_A',
     createdByRole: 'Station Master Desk',
     createdAt: new Date(Date.now() - 7200000).toISOString(),
     updatedAt: new Date(Date.now() - 1800000).toISOString(),
     context: {
       route: '/workspace',
-      user: 'Ravi Amish',
+      user: 'Worker_A',
       role: 'Station Master Desk',
       browser: 'Chrome 128 / Windows',
       timestamp: new Date(Date.now() - 7200000).toISOString(),
@@ -82,7 +82,7 @@ export const INITIAL_DEMO_TICKETS: SupportTicket[] = [
     timeline: [
       {
         id: 'tl-1',
-        author: 'Ravi Amish',
+        author: 'Worker_A',
         role: 'Station Master Desk',
         text: 'Ticket created with attached axle counter log evidence.',
         timestamp: '11:15 UTC',
@@ -210,7 +210,7 @@ export function useSupportStore(
     }): SupportTicket => {
       const nowIso = new Date().toISOString();
       const timeShort = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }) + ' UTC';
-      const userDisplay = currentUser?.name || 'Divya Singh';
+      const userDisplay = currentUser?.name || 'IIT_Patna';
       const userRole = currentUser?.role || 'Station Master Desk';
 
       const ticketSeq = 1000 + tickets.length + 1;
@@ -312,7 +312,7 @@ export function useSupportStore(
     (ticketId: string, replyText: string, attachments: string[] = []) => {
       const nowIso = new Date().toISOString();
       const timeShort = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }) + ' UTC';
-      const userDisplay = currentUser?.name || 'Divya Singh';
+      const userDisplay = currentUser?.name || 'IIT_Patna';
       const userRole = currentUser?.role || 'Station Master Desk';
 
       setTickets(prev =>
@@ -346,7 +346,7 @@ export function useSupportStore(
     (ticketId: string, newStatus: TicketStatus, reason?: string) => {
       const nowIso = new Date().toISOString();
       const timeShort = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }) + ' UTC';
-      const userDisplay = currentUser?.name || 'Divya Singh';
+      const userDisplay = currentUser?.name || 'IIT_Patna';
       const userRole = currentUser?.role || 'Station Master Desk';
 
       setTickets(prev =>
@@ -377,7 +377,7 @@ export function useSupportStore(
   // Report Emergency Action (Notifications & Audit only - no train control)
   const reportEmergency = useCallback(
     (emergencyReason: string, locationNotes?: string) => {
-      const userDisplay = currentUser?.name || 'Divya Singh';
+      const userDisplay = currentUser?.name || 'IIT_Patna';
       const userRole = currentUser?.role || 'Station Master Desk';
       const timeShort = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false }) + ' UTC';
 

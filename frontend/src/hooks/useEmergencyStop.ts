@@ -130,7 +130,7 @@ export function useEmergencyStop(
     const timeShort = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
     const userDisplay = currentUser?.name
       ? `${currentUser.name} (${currentUser.role})`
-      : 'Divya Singh (Station Master Desk)';
+      : 'IIT_Patna (Station Master Desk)';
     const affectedIds = ongoing.map(e => e.id);
 
     // 2. Update events: mark ongoing as suspended atomically
@@ -192,7 +192,7 @@ export function useEmergencyStop(
         {
           department: 'OPERATING',
           role: currentUser?.role || 'Station Master Desk',
-          officer_id: currentUser?.name || 'Divya Singh',
+          officer_id: currentUser?.name || 'IIT_Patna',
           signature_hash: 'sig_em_' + Math.random().toString(16).substring(2, 10),
           signed_at: nowIso,
         },
@@ -225,7 +225,7 @@ export function useEmergencyStop(
     const timeShort = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false });
     const userDisplay = currentUser?.name
       ? `${currentUser.name} (${currentUser.role})`
-      : 'Divya Singh (Station Master Desk)';
+      : 'IIT_Patna (Station Master Desk)';
 
     let resumedCount = 0;
     let remainingSuspendedCount = 0;
@@ -341,7 +341,7 @@ export function useEmergencyStop(
         {
           department: 'OPERATING',
           role: currentUser?.role || 'Station Master Desk',
-          officer_id: currentUser?.name || 'Divya Singh',
+          officer_id: currentUser?.name || 'IIT_Patna',
           signature_hash: 'sig_reappr_' + Math.random().toString(16).substring(2, 10),
           signed_at: nowIso,
         },

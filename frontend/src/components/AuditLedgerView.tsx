@@ -94,7 +94,7 @@ export const AuditLedgerView: React.FC = () => {
 
   const handleExportJSON = () => {
     const dataToExport = {
-      system: 'RailSync Indian Railways Central Railway (Nagpur Division)',
+      system: 'RailSync Indian Railways East Central Railway (Danapur Division)',
       statutory_compliance: 'CRS Inquiry Mandate & S3 WORM Object Lock Legal Hold',
       exported_at: new Date().toISOString(),
       total_blocks: ledgerBlocks.length,

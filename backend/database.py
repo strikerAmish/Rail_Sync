@@ -119,218 +119,106 @@ def init_db():
         cursor.execute("DELETE FROM transactional_outbox")
         conn.commit()
 
-    # Seed baseline events if database is empty
-    cursor.execute("SELECT COUNT(*) as cnt FROM operational_events")
-    count = cursor.fetchone()["cnt"]
-
-    if count == 0:
-        seed_baseline_event(cursor)
-        conn.commit()
+    # Seed all corridor operational events if not present
+    seed_all_corridor_events(cursor)
+    conn.commit()
 
     conn.close()
 
 
-def seed_baseline_event(cursor):
-    now = datetime.now(timezone.utc)
-    req_start = (now + timedelta(hours=1)).isoformat().replace("+00:00", "Z")
-    req_end = (now + timedelta(hours=4)).isoformat().replace("+00:00", "Z")
+def seed_all_corridor_events(cursor):
+    seed_file = Path(__file__).parent / "seed_events.json"
+    if not seed_file.exists():
+        return
 
-    # -------------------------------------------------------------
-    # Event 1: Danapur–Patna Junction (Stage 4 / Awaiting Approval)
-    # -------------------------------------------------------------
-    sample_id = "EVT-ENG-2026-00132"
-    impact_vector = {
-        "catenary_25kv_power_trip": False,
-        "absolute_traffic_block": True,
-        "speed_restriction_kmh": 30,
-        "feeding_posts": [],
-        "points_clamping_required": True,
-        "track_bonding_notice": False
-    }
+    with open(seed_file, "r", encoding="utf-8") as f:
+        events = json.load(f)
 
-    cursor.execute("""
-    INSERT INTO operational_events (
-        id, division, section, track_id, km_start, km_end, status,
-        requested_start, requested_end, fencing_token, impact_vector,
-        description, originator_id, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        sample_id,
-        "DNR",
-        "Danapur–Patna Junction",
-        "UP_MAIN",
-        156.40,
-        158.20,
-        "AWAITING_APPROVAL",
-        req_start,
-        req_end,
-        901,
-        json.dumps(impact_vector),
-        "Continuous Rail Ultrasonic Flaw Detection (USFD) & Heavy Ballast Tamping",
-        "SSE_PWAY_DNR_03",
-        now.isoformat().replace("+00:00", "Z"),
-        now.isoformat().replace("+00:00", "Z")
-    ))
+    for e in events:
+        eid = e["id"]
+        cursor.execute("SELECT id FROM operational_events WHERE id = ?", (eid,))
+        if cursor.fetchone():
+            continue
 
-    cursor.executemany("""
-    INSERT INTO event_stakeholders (
-        id, event_id, department, role, officer_id, approval_status, signature_hash, signed_at, rejection_reason
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, [
-        (str(uuid.uuid4()), sample_id, "CIVIL_P_WAY", "FIELD_SUPERVISOR", "SSE_PWAY_DNR_03", "APPROVED", "9f2c81e997ed25519pwaydnr01", now.isoformat().replace("+00:00", "Z"), None),
-        (str(uuid.uuid4()), sample_id, "OPERATING", "SECTION_CONTROLLER", "CTRL_SEC_DNR_02", "PENDING", None, None, None),
-        (str(uuid.uuid4()), sample_id, "OPERATING", "STATION_MASTER", "SM_PNBE_01", "APPROVED", "3e1b7194853641ef85smpnbe01", now.isoformat().replace("+00:00", "Z"), None),
-        (str(uuid.uuid4()), sample_id, "OHE", "TPC", "TPC_DDU_01", "APPROVED", "1d4ed81e997ed25519tpcddu01", now.isoformat().replace("+00:00", "Z"), None)
-    ])
+        token = e.get("fencing_token")
+        if token is not None:
+            cursor.execute("SELECT id FROM operational_events WHERE fencing_token = ? AND id != ?", (token, eid))
+            if cursor.fetchone():
+                token = None
 
-    cursor.execute("""
-    INSERT INTO statutory_permits (
-        id, event_id, permit_type, earthing_discharged, power_tripped, points_clamped, issued_at, officer_id, notes
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        str(uuid.uuid4()),
-        sample_id,
-        "POINT_CLAMP_MEMO",
-        0,
-        0,
-        1,
-        now.isoformat().replace("+00:00", "Z"),
-        "SM_PNBE_01",
-        "Points padlocked mechanically against Up Main crossover toward Patna Junction"
-    ))
+        impact = e.get("impact_vector", {})
+        cursor.execute("""
+        INSERT INTO operational_events (
+            id, division, section, track_id, km_start, km_end, status,
+            requested_start, requested_end, fencing_token, impact_vector,
+            description, originator_id, field_photo, piggybacked_depts,
+            station_actions, digital_permit, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            eid,
+            e.get("division", "DNR"),
+            e.get("section", "Danapur–Patna Junction"),
+            e.get("track_id", "UP_MAIN"),
+            float(e.get("km_start", 544.1)),
+            float(e.get("km_end", 545.8)),
+            e.get("status", "AWAITING_APPROVAL"),
+            e.get("requested_start", datetime.now(timezone.utc).isoformat()),
+            e.get("requested_end", datetime.now(timezone.utc).isoformat()),
+            token,
+            json.dumps(impact),
+            e.get("description", ""),
+            e.get("originator_id", "SSE_OHE_DNR_04"),
+            json.dumps(e.get("field_photo")) if e.get("field_photo") else None,
+            json.dumps(e.get("piggybacked_depts")) if e.get("piggybacked_depts") else None,
+            json.dumps(e.get("station_actions")) if e.get("station_actions") else None,
+            json.dumps(e.get("digital_permit")) if e.get("digital_permit") else None,
+            e.get("created_at", datetime.now(timezone.utc).isoformat()),
+            e.get("updated_at", datetime.now(timezone.utc).isoformat()),
+        ))
 
-    cursor.execute("""
-    INSERT INTO transactional_outbox (
-        id, event_id, event_type, payload, status
-    ) VALUES (?, ?, ?, ?, ?)
-    """, (
-        str(uuid.uuid4()),
-        sample_id,
-        "OPERATIONAL_EVENT_CREATED",
-        json.dumps({"event_id": sample_id, "stage": "AWAITING_APPROVAL", "track": "UP_MAIN"}),
-        "COMMITTED"
-    ))
+        # Seed stakeholders
+        for s in e.get("stakeholders", []):
+            stk_id = s.get("id", str(uuid.uuid4()))
+            cursor.execute("SELECT id FROM event_stakeholders WHERE id = ?", (stk_id,))
+            if not cursor.fetchone():
+                cursor.execute("""
+                INSERT INTO event_stakeholders (
+                    id, event_id, department, role, officer_id, approval_status, signature_hash, signed_at, rejection_reason
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    stk_id,
+                    eid,
+                    s.get("department", "OPERATING"),
+                    s.get("role", "STATION_MASTER"),
+                    s.get("officer_id", "SM_PNBE_01"),
+                    s.get("approval_status", "PENDING"),
+                    s.get("signature_hash"),
+                    s.get("signed_at"),
+                    s.get("rejection_reason"),
+                ))
 
-    # -------------------------------------------------------------
-    # Event 2: Danapur–Patna Junction (Stage 6 / Active on Track with Form3-PTW)
-    # -------------------------------------------------------------
-    event2_id = "EVT-OHE-2026-00301"
-    impact2 = {
-        "catenary_25kv_power_trip": True,
-        "absolute_traffic_block": True,
-        "speed_restriction_kmh": 20,
-        "feeding_posts": ["FP-04", "FP-06"],
-        "points_clamping_required": True,
-        "track_bonding_notice": True
-    }
-    cursor.execute("""
-    INSERT INTO operational_events (
-        id, division, section, track_id, km_start, km_end, status,
-        requested_start, requested_end, fencing_token, impact_vector,
-        description, originator_id, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        event2_id,
-        "DNR",
-        "Danapur–Patna Junction",
-        "UP_MAIN",
-        544.10,
-        545.80,
-        "ACTIVE_IN_PROGRESS",
-        req_start,
-        req_end,
-        893,
-        json.dumps(impact2),
-        "25kV Catenary Contact Wire Replacement & Isolator Maintenance (ACTM 20615)",
-        "SSE_OHE_DNR_04",
-        now.isoformat().replace("+00:00", "Z"),
-        now.isoformat().replace("+00:00", "Z")
-    ))
-
-    cursor.executemany("""
-    INSERT INTO event_stakeholders (
-        id, event_id, department, role, officer_id, approval_status, signature_hash, signed_at, rejection_reason
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, [
-        (str(uuid.uuid4()), event2_id, "OHE", "FIELD_SUPERVISOR", "SSE_OHE_DNR_04", "APPROVED", "sig893sseohednr04", now.isoformat().replace("+00:00", "Z"), None),
-        (str(uuid.uuid4()), event2_id, "OHE", "TPC", "TPC_DDU_01", "APPROVED", "sig893tpcddu01", now.isoformat().replace("+00:00", "Z"), None),
-        (str(uuid.uuid4()), event2_id, "OPERATING", "STATION_MASTER", "SM_PNBE_01", "APPROVED", "sig893smpnbe01", now.isoformat().replace("+00:00", "Z"), None),
-        (str(uuid.uuid4()), event2_id, "OPERATING", "SECTION_CONTROLLER", "CTRL_SEC_DNR_02", "APPROVED", "sig893ctrldnr02", now.isoformat().replace("+00:00", "Z"), None)
-    ])
-
-    cursor.executemany("""
-    INSERT INTO statutory_permits (
-        id, event_id, permit_type, earthing_discharged, power_tripped, points_clamped, issued_at, officer_id, notes
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, [
-        (str(uuid.uuid4()), event2_id, "ETR_1", 0, 1, 0, now.isoformat().replace("+00:00", "Z"), "TPC_DDU_01", "Form ETR-1: 25kV Catenary Power Block Granted"),
-        (str(uuid.uuid4()), event2_id, "FORM3_PTW", 1, 0, 0, now.isoformat().replace("+00:00", "Z"), "SSE_OHE_DNR_04", "Form3-PTW: Earth discharge rods attached. Work authorized on track."),
-        (str(uuid.uuid4()), event2_id, "POINT_CLAMP_MEMO", 0, 0, 1, now.isoformat().replace("+00:00", "Z"), "SM_PNBE_01", "Points clamped and locked against Up Main at Patna Jn")
-    ])
-
-    # -------------------------------------------------------------
-    # Event 3: Ara Junction–Danapur (Stage 5 / Approved Block)
-    # -------------------------------------------------------------
-    event3_id = "EVT-SIG-2026-00214"
-    impact3 = {
-        "catenary_25kv_power_trip": False,
-        "absolute_traffic_block": True,
-        "speed_restriction_kmh": 15,
-        "feeding_posts": [],
-        "points_clamping_required": True,
-        "track_bonding_notice": False
-    }
-    cursor.execute("""
-    INSERT INTO operational_events (
-        id, division, section, track_id, km_start, km_end, status,
-        requested_start, requested_end, fencing_token, impact_vector,
-        description, originator_id, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        event3_id,
-        "DNR",
-        "Ara Junction–Danapur",
-        "UP_MAIN",
-        590.20,
-        591.50,
-        "APPROVED",
-        req_start,
-        req_end,
-        894,
-        json.dumps(impact3),
-        "Electronic Interlocking & Point Machine Overhaul (SWR Sec 8.4)",
-        "SSE_SIG_ARA_01",
-        now.isoformat().replace("+00:00", "Z"),
-        now.isoformat().replace("+00:00", "Z")
-    ))
-
-    cursor.executemany("""
-    INSERT INTO event_stakeholders (
-        id, event_id, department, role, officer_id, approval_status, signature_hash, signed_at, rejection_reason
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, [
-        (str(uuid.uuid4()), event3_id, "S_AND_T", "FIELD_SUPERVISOR", "SSE_SIG_ARA_01", "APPROVED", "sig894ssesigara01", now.isoformat().replace("+00:00", "Z"), None),
-        (str(uuid.uuid4()), event3_id, "OPERATING", "SECTION_CONTROLLER", "CTRL_SEC_DNR_02", "APPROVED", "sig894ctrldnr02", now.isoformat().replace("+00:00", "Z"), None),
-        (str(uuid.uuid4()), event3_id, "OPERATING", "STATION_MASTER", "SM_ARA_01", "APPROVED", "sig894smara01", now.isoformat().replace("+00:00", "Z"), None),
-        (str(uuid.uuid4()), event3_id, "OHE", "TPC", "TPC_DDU_01", "APPROVED", "sig894tpcddu01", now.isoformat().replace("+00:00", "Z"), None)
-    ])
-
-    cursor.execute("""
-    INSERT INTO statutory_permits (
-        id, event_id, permit_type, earthing_discharged, power_tripped, points_clamped, issued_at, officer_id, notes
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        str(uuid.uuid4()),
-        event3_id,
-        "POINT_CLAMP_MEMO",
-        0,
-        0,
-        1,
-        now.isoformat().replace("+00:00", "Z"),
-        "SM_ARA_01",
-        "Mechanical point clamp applied and padlocked at Ara Jn"
-    ))
+        # Seed permits
+        for p in e.get("permits", []):
+            pmt_id = p.get("id", str(uuid.uuid4()))
+            cursor.execute("SELECT id FROM statutory_permits WHERE id = ?", (pmt_id,))
+            if not cursor.fetchone():
+                cursor.execute("""
+                INSERT INTO statutory_permits (
+                    id, event_id, permit_type, earthing_discharged, power_tripped, points_clamped, issued_at, officer_id, notes
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    pmt_id,
+                    eid,
+                    p.get("permit_type", "FORM3_PTW"),
+                    1 if p.get("earthing_discharged") else 0,
+                    1 if p.get("power_tripped") else 0,
+                    1 if p.get("points_clamped") else 0,
+                    p.get("issued_at", datetime.now(timezone.utc).isoformat()),
+                    p.get("officer_id", "SM_PNBE_01"),
+                    p.get("notes", ""),
+                ))
 
 
 # Initialize the database immediately
 init_db()
+

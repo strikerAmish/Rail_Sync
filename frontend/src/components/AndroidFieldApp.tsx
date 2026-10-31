@@ -9,6 +9,7 @@ import {
 import { OperationalEvent } from '../types';
 import { createEvent, fetchEvents, activateWork, completeWork } from '../api';
 import { useChatStore, ChatMessage } from '../hooks/useChatStore';
+import { broadcastCorridorUpdate } from '../syncBridge';
 
 interface AndroidFieldAppProps {
   onEventCreated?: () => void;
@@ -153,7 +154,8 @@ export const AndroidFieldApp: React.FC<AndroidFieldAppProps> = ({
         originator_id: 'SSE_OHE_PATNA_01',
       };
 
-      await createEvent(payload);
+      const created = await createEvent(payload);
+      broadcastCorridorUpdate('EVENT_CREATED', created || payload);
       setActionSuccess('Requisition Dispatched to Station Master Queue!');
       await loadEventsData();
       setActiveTab('permits');
@@ -182,6 +184,7 @@ export const AndroidFieldApp: React.FC<AndroidFieldAppProps> = ({
   const handleActivateWork = async (id: string) => {
     try {
       await activateWork(id);
+      broadcastCorridorUpdate('WORK_ACTIVATED', { eventId: id });
       setActionSuccess('Work Commenced: Track Custody Handed to Field Crew');
       loadEventsData();
       setTimeout(() => setActionSuccess(null), 3000);
@@ -193,6 +196,7 @@ export const AndroidFieldApp: React.FC<AndroidFieldAppProps> = ({
   const handleCompleteWork = async (id: string) => {
     try {
       await completeWork(id, 'SSE_OHE_PATNA_01');
+      broadcastCorridorUpdate('WORK_COMPLETED', { eventId: id });
       setActionSuccess('Safety Certified: Track Handed Back to Station Master');
       loadEventsData();
       setTimeout(() => setActionSuccess(null), 3000);

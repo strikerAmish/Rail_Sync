@@ -95,18 +95,6 @@ export const CORRIDOR_SECTION_METADATA: SectionMetadata[] = [
     availableSlots: 2,
     loadPercent: 82,
   },
-  {
-    id: 'NGP_WDA',
-    division: 'Nagpur Division (Central Railway / CR) - HQ: Nagpur',
-    label: 'Nagpur – Wardha Corridor (Nagpur Division / CR)',
-    shortName: 'Nagpur–Wardha',
-    junctions: 'Nagpur Jn ⇄ Butibori ⇄ Sindi ⇄ Sevagram ⇄ Wardha Jn',
-    kmRange: 'KM 758.00 – 836.50',
-    defaultKmStart: '780.00',
-    defaultKmEnd: '782.50',
-    availableSlots: 3,
-    loadPercent: 61,
-  },
 ];
 
 export const TRACK_OPTIONS = [

@@ -51,7 +51,7 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-400">
-              Indian Railways — Central Railway (CR) • Nagpur Division (NGP) • Wardha–Sevagram Corridor
+              Indian Railways — East Central Railway (ECR) • Danapur Division (DNR) • Danapur–Patna Corridor
             </p>
           </div>
         </div>

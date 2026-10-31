@@ -19,6 +19,8 @@ export interface GlancePopoverProps {
     ongoing: number;
     teamsOnTrack?: number;
     history?: number;
+    pendingSm?: number;
+    savedTime?: string;
   };
   anchorRef?: React.RefObject<HTMLElement | null>;
 }
@@ -37,6 +39,8 @@ export const GlancePopover: React.FC<GlancePopoverProps> = ({
   const pending = liveCounts?.pending ?? GLANCE_DATA.pendingApprovals;
   const ongoing = liveCounts?.ongoing ?? GLANCE_DATA.workInProgress;
   const teamsOnTrack = liveCounts?.teamsOnTrack ?? liveCounts?.ongoing ?? GLANCE_DATA.teamsOnTrack;
+  const pendingSm = liveCounts?.pendingSm ?? 4;
+  const savedTime = liveCounts?.savedTime ?? GLANCE_DATA.savedTime;
 
   // Handle Escape key and focus management
   useEffect(() => {
@@ -260,7 +264,7 @@ export const GlancePopover: React.FC<GlancePopoverProps> = ({
                     textOverflow: 'ellipsis',
                   }}
                 >
-                  {GLANCE_DATA.pendingForWardha} need Wardha Station Master
+                  {pendingSm} need Station Master (IIT_Patna) action
                 </div>
               </div>
             </div>
@@ -454,7 +458,7 @@ export const GlancePopover: React.FC<GlancePopoverProps> = ({
                     textOverflow: 'ellipsis',
                   }}
                 >
-                  Joint possession saved {GLANCE_DATA.savedTime}
+                  Joint possession saved {savedTime}
                 </div>
               </div>
             </div>
