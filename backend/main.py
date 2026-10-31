@@ -300,3 +300,10 @@ async def websocket_corridor_stream(
     except Exception as exc:
         logger.warning(json.dumps({"event": "ws_unexpected_error", "error": str(exc), "traceparent": ws_traceparent}))
         ws_manager.disconnect(websocket)
+
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
