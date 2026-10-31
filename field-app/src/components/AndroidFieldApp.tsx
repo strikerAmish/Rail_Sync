@@ -282,6 +282,15 @@ export const AndroidFieldApp: React.FC<AndroidFieldAppProps> = ({
         field_photo: fieldPhotoObj,
       };
 
+      const nowReq = new Date();
+      const dd = String(nowReq.getDate()).padStart(2, '0');
+      const mm = String(nowReq.getMonth() + 1).padStart(2, '0');
+      const yy = String(nowReq.getFullYear()).slice(-2);
+      const ddmmyy = `${dd}${mm}${yy}`;
+      const randomSerial = String(Math.floor(1000 + Math.random() * 9000));
+      const generatedEventId = `EVT_OHE_${ddmmyy}_${randomSerial}`;
+      (payload as any).id = generatedEventId;
+
       let fullEvent: OperationalEvent | null = null;
       try {
         const result = await createEvent(payload);
@@ -326,7 +335,7 @@ export const AndroidFieldApp: React.FC<AndroidFieldAppProps> = ({
       }
 
       if (!fullEvent) {
-        const evId = `EVT-MOB-${Date.now().toString().slice(-5)}`;
+        const evId = generatedEventId;
         fullEvent = {
           id: evId,
           division: payload.division,

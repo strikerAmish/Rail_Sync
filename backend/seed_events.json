@@ -1,8 +1,8 @@
 [
   {
-    "id": "EVT-ENG-2026-00132",
+    "id": "EVT_ENG_251026_0132",
     "division": "DNR",
-    "section": "Danapur–Patna Junction",
+    "section": "Danapur\u2013Patna Junction",
     "track_id": "UP_MAIN",
     "km_start": 156.4,
     "km_end": 158.2,
@@ -27,7 +27,7 @@
     "stakeholders": [
       {
         "id": "s-pul-01",
-        "event_id": "EVT-ENG-2026-00132",
+        "event_id": "EVT_ENG_251026_0132",
         "department": "CIVIL_P_WAY",
         "role": "FIELD_SUPERVISOR",
         "officer_id": "SSE_PWAY_SEGM_03",
@@ -37,7 +37,7 @@
       },
       {
         "id": "s-pul-02",
-        "event_id": "EVT-ENG-2026-00132",
+        "event_id": "EVT_ENG_251026_0132",
         "department": "OPERATING",
         "role": "SECTION_CONTROLLER",
         "officer_id": "CTRL_SEC_DNR_02",
@@ -45,7 +45,7 @@
       },
       {
         "id": "s-pul-03",
-        "event_id": "EVT-ENG-2026-00132",
+        "event_id": "EVT_ENG_251026_0132",
         "department": "OPERATING",
         "role": "STATION_MASTER",
         "officer_id": "SM_PNBE_01",
@@ -55,7 +55,7 @@
       },
       {
         "id": "s-pul-04",
-        "event_id": "EVT-ENG-2026-00132",
+        "event_id": "EVT_ENG_251026_0132",
         "department": "OHE",
         "role": "TPC",
         "officer_id": "TPC_DDU_01",
@@ -67,7 +67,7 @@
     "permits": [
       {
         "id": "p-pul-01",
-        "event_id": "EVT-ENG-2026-00132",
+        "event_id": "EVT_ENG_251026_0132",
         "permit_type": "CIVIL_TRACK_BLOCK",
         "earthing_discharged": false,
         "power_tripped": false,
@@ -179,7 +179,7 @@
     "digital_permit": {
       "permit_number": "PERMIT-CR-NGP-2026-00132",
       "issued_by": "IIT_Patna (SM/WDA)",
-      "station": "Sevagram – Pulgaon Control",
+      "station": "Sevagram \u2013 Pulgaon Control",
       "issued_at": "Pending Final Authorization",
       "valid_until": "17:30 hrs",
       "delivered_to_mobile": false,
@@ -187,9 +187,9 @@
     }
   },
   {
-    "id": "EVT-OHE-2026-00135",
+    "id": "EVT_OHE_161026_0135",
     "division": "DNR",
-    "section": "Danapur–Patna Junction",
+    "section": "Danapur\u2013Patna Junction",
     "track_id": "UP_MAIN",
     "km_start": 160.1,
     "km_end": 162,
@@ -217,7 +217,7 @@
     "stakeholders": [
       {
         "id": "s-pul-ohe-1",
-        "event_id": "EVT-OHE-2026-00135",
+        "event_id": "EVT_OHE_161026_0135",
         "department": "OHE",
         "role": "TPC",
         "officer_id": "TPC_DDU_01",
@@ -225,7 +225,7 @@
       },
       {
         "id": "s-pul-ohe-2",
-        "event_id": "EVT-OHE-2026-00135",
+        "event_id": "EVT_OHE_161026_0135",
         "department": "OPERATING",
         "role": "SECTION_CONTROLLER",
         "officer_id": "CTRL_SEC_DNR_02",
@@ -233,7 +233,7 @@
       },
       {
         "id": "s-pul-ohe-3",
-        "event_id": "EVT-OHE-2026-00135",
+        "event_id": "EVT_OHE_161026_0135",
         "department": "OPERATING",
         "role": "STATION_MASTER",
         "officer_id": "SM_PNBE_01",
@@ -245,9 +245,9 @@
     "permits": []
   },
   {
-    "id": "EVT-OHE-2026-00125",
+    "id": "EVT_OHE_161026_0125",
     "division": "DNR",
-    "section": "Ara–Danapur",
+    "section": "Ara\u2013Danapur",
     "track_id": "UP_MAIN",
     "km_start": 142.1,
     "km_end": 143.04,
@@ -275,7 +275,7 @@
     "stakeholders": [
       {
         "id": "s-wda-01",
-        "event_id": "EVT-OHE-2026-00125",
+        "event_id": "EVT_OHE_161026_0125",
         "department": "OHE",
         "role": "TPC",
         "officer_id": "TPC_DDU_01",
@@ -285,7 +285,7 @@
       },
       {
         "id": "s-wda-02",
-        "event_id": "EVT-OHE-2026-00125",
+        "event_id": "EVT_OHE_161026_0125",
         "department": "OPERATING",
         "role": "SECTION_CONTROLLER",
         "officer_id": "CTRL_SEC_DNR_02",
@@ -293,7 +293,7 @@
       },
       {
         "id": "s-wda-03",
-        "event_id": "EVT-OHE-2026-00125",
+        "event_id": "EVT_OHE_161026_0125",
         "department": "OPERATING",
         "role": "STATION_MASTER",
         "officer_id": "SM_PNBE_01",
@@ -303,7 +303,7 @@
       },
       {
         "id": "s-wda-04",
-        "event_id": "EVT-OHE-2026-00125",
+        "event_id": "EVT_OHE_161026_0125",
         "department": "OHE",
         "role": "FIELD_SUPERVISOR",
         "officer_id": "SSE_OHE_WDA_04",
@@ -315,7 +315,7 @@
     "permits": [
       {
         "id": "p-wda-01",
-        "event_id": "EVT-OHE-2026-00125",
+        "event_id": "EVT_OHE_161026_0125",
         "permit_type": "ETR_1",
         "earthing_discharged": false,
         "power_tripped": true,
@@ -364,9 +364,9 @@
     }
   },
   {
-    "id": "EVT-SIG-2026-00128",
+    "id": "EVT_SIG_161026_0128",
     "division": "DNR",
-    "section": "Ara–Danapur",
+    "section": "Ara\u2013Danapur",
     "track_id": "UP_MAIN",
     "km_start": 143.04,
     "km_end": 143.5,
@@ -391,7 +391,7 @@
     "stakeholders": [
       {
         "id": "s-sig-01",
-        "event_id": "EVT-SIG-2026-00128",
+        "event_id": "EVT_SIG_161026_0128",
         "department": "S_AND_T",
         "role": "FIELD_SUPERVISOR",
         "officer_id": "SSE_SIG_WDA_01",
@@ -401,7 +401,7 @@
       },
       {
         "id": "s-sig-02",
-        "event_id": "EVT-SIG-2026-00128",
+        "event_id": "EVT_SIG_161026_0128",
         "department": "OPERATING",
         "role": "STATION_MASTER",
         "officer_id": "SM_PNBE_01",
@@ -411,7 +411,7 @@
       },
       {
         "id": "s-sig-03",
-        "event_id": "EVT-SIG-2026-00128",
+        "event_id": "EVT_SIG_161026_0128",
         "department": "OPERATING",
         "role": "SECTION_CONTROLLER",
         "officer_id": "CTRL_SEC_DNR_02",
@@ -421,9 +421,9 @@
     "permits": []
   },
   {
-    "id": "EVT-OPR-2026-00119",
+    "id": "EVT_OPR_161026_0119",
     "division": "DNR",
-    "section": "Buxar–Ara Junction",
+    "section": "Buxar\u2013Ara Junction",
     "track_id": "DN_MAIN",
     "km_start": 112.5,
     "km_end": 115,
@@ -448,7 +448,7 @@
     "stakeholders": [
       {
         "id": "s-nw-01",
-        "event_id": "EVT-OPR-2026-00119",
+        "event_id": "EVT_OPR_161026_0119",
         "department": "OPERATING",
         "role": "STATION_MASTER",
         "officer_id": "SM_PNBE_01",
@@ -458,7 +458,7 @@
       },
       {
         "id": "s-nw-02",
-        "event_id": "EVT-OPR-2026-00119",
+        "event_id": "EVT_OPR_161026_0119",
         "department": "OPERATING",
         "role": "SECTION_CONTROLLER",
         "officer_id": "CTRL_SEC_DNR_02",
@@ -468,9 +468,9 @@
     "permits": []
   },
   {
-    "id": "EVT-SIG-2026-00122",
+    "id": "EVT_SIG_161026_0122",
     "division": "DNR",
-    "section": "Buxar–Ara Junction",
+    "section": "Buxar\u2013Ara Junction",
     "track_id": "DN_MAIN",
     "km_start": 120,
     "km_end": 122.8,
@@ -495,7 +495,7 @@
     "stakeholders": [
       {
         "id": "s-nw-sig-1",
-        "event_id": "EVT-SIG-2026-00122",
+        "event_id": "EVT_SIG_161026_0122",
         "department": "S_AND_T",
         "role": "FIELD_SUPERVISOR",
         "officer_id": "SSE_SIG_NGP_02",
@@ -505,7 +505,7 @@
       },
       {
         "id": "s-nw-sig-2",
-        "event_id": "EVT-SIG-2026-00122",
+        "event_id": "EVT_SIG_161026_0122",
         "department": "OPERATING",
         "role": "SECTION_CONTROLLER",
         "officer_id": "CTRL_SEC_DNR_02",
@@ -515,9 +515,9 @@
     "permits": []
   },
   {
-    "id": "EVT-PWY-2026-00140",
+    "id": "EVT_ENG_161026_0140",
     "division": "DNR",
-    "section": "Pt. Deen Dayal Upadhyaya–Buxar",
+    "section": "Pt. Deen Dayal Upadhyaya\u2013Buxar",
     "track_id": "UP_MAIN",
     "km_start": 78.2,
     "km_end": 81,
@@ -542,7 +542,7 @@
     "stakeholders": [
       {
         "id": "s-ns-01",
-        "event_id": "EVT-PWY-2026-00140",
+        "event_id": "EVT_ENG_161026_0140",
         "department": "CIVIL_P_WAY",
         "role": "FIELD_SUPERVISOR",
         "officer_id": "SSE_PWAY_NGP_01",
@@ -552,7 +552,7 @@
       },
       {
         "id": "s-ns-02",
-        "event_id": "EVT-PWY-2026-00140",
+        "event_id": "EVT_ENG_161026_0140",
         "department": "OPERATING",
         "role": "SECTION_CONTROLLER",
         "officer_id": "CTRL_SEC_DNR_02",
@@ -562,9 +562,9 @@
     "permits": []
   },
   {
-    "id": "EVT-OHE-2026-00144",
+    "id": "EVT_OHE_161026_0144",
     "division": "DNR",
-    "section": "Pt. Deen Dayal Upadhyaya–Buxar",
+    "section": "Pt. Deen Dayal Upadhyaya\u2013Buxar",
     "track_id": "UP_MAIN",
     "km_start": 84.5,
     "km_end": 86.1,
@@ -591,7 +591,7 @@
     "stakeholders": [
       {
         "id": "s-ns-ohe-1",
-        "event_id": "EVT-OHE-2026-00144",
+        "event_id": "EVT_OHE_161026_0144",
         "department": "OHE",
         "role": "TPC",
         "officer_id": "TPC_DDU_01",
@@ -599,7 +599,7 @@
       },
       {
         "id": "s-ns-ohe-2",
-        "event_id": "EVT-OHE-2026-00144",
+        "event_id": "EVT_OHE_161026_0144",
         "department": "OPERATING",
         "role": "SECTION_CONTROLLER",
         "officer_id": "CTRL_SEC_DNR_02",
@@ -609,9 +609,9 @@
     "permits": []
   },
   {
-    "id": "EVT-CW-2026-00155",
+    "id": "EVT_CW_161026_0155",
     "division": "DNR",
-    "section": "Danapur–Patna Junction",
+    "section": "Danapur\u2013Patna Junction",
     "track_id": "UP_GOODS_LOOP",
     "km_start": 153.2,
     "km_end": 154,
@@ -647,7 +647,7 @@
     "stakeholders": [
       {
         "id": "s-cw-01",
-        "event_id": "EVT-CW-2026-00155",
+        "event_id": "EVT_CW_161026_0155",
         "department": "MECHANICAL_CW",
         "role": "FIELD_SUPERVISOR",
         "officer_id": "SSE_CW_SEGM_01",
@@ -657,7 +657,7 @@
       },
       {
         "id": "s-cw-02",
-        "event_id": "EVT-CW-2026-00155",
+        "event_id": "EVT_CW_161026_0155",
         "department": "OPERATING",
         "role": "SECTION_CONTROLLER",
         "officer_id": "CTRL_SEC_DNR_02",
@@ -665,7 +665,7 @@
       },
       {
         "id": "s-cw-03",
-        "event_id": "EVT-CW-2026-00155",
+        "event_id": "EVT_CW_161026_0155",
         "department": "OPERATING",
         "role": "STATION_MASTER",
         "officer_id": "SM_DNR_01",
@@ -675,9 +675,9 @@
     "permits": []
   },
   {
-    "id": "EVT-SAF-2026-00160",
+    "id": "EVT_SAF_161026_0160",
     "division": "DNR",
-    "section": "Ara–Danapur",
+    "section": "Ara\u2013Danapur",
     "track_id": "UP_MAIN",
     "km_start": 142.1,
     "km_end": 144.5,
@@ -713,7 +713,7 @@
     "stakeholders": [
       {
         "id": "s-saf-01",
-        "event_id": "EVT-SAF-2026-00160",
+        "event_id": "EVT_SAF_161026_0160",
         "department": "SAFETY",
         "role": "SAFETY_OFFICER",
         "officer_id": "DSC_SAFETY_NGP_01",
@@ -723,7 +723,7 @@
       },
       {
         "id": "s-saf-02",
-        "event_id": "EVT-SAF-2026-00160",
+        "event_id": "EVT_SAF_161026_0160",
         "department": "OPERATING",
         "role": "STATION_MASTER",
         "officer_id": "SM_ARA_01",
@@ -733,9 +733,9 @@
     "permits": []
   },
   {
-    "id": "EVT-ENG-2026-00109",
+    "id": "EVT_ENG_161026_0109",
     "division": "DNR",
-    "section": "Danapur–Patna Junction",
+    "section": "Danapur\u2013Patna Junction",
     "track_id": "UP_MAIN",
     "km_start": 154,
     "km_end": 156,
@@ -760,7 +760,7 @@
     "stakeholders": [
       {
         "id": "s-ong-pul-1",
-        "event_id": "EVT-ENG-2026-00109",
+        "event_id": "EVT_ENG_161026_0109",
         "department": "CIVIL_P_WAY",
         "role": "FIELD_SUPERVISOR",
         "officer_id": "SSE_PWAY_SEGM_03",
@@ -770,7 +770,7 @@
       },
       {
         "id": "s-ong-pul-2",
-        "event_id": "EVT-ENG-2026-00109",
+        "event_id": "EVT_ENG_161026_0109",
         "department": "OPERATING",
         "role": "SECTION_CONTROLLER",
         "officer_id": "CTRL_SEC_DNR_02",
@@ -780,7 +780,7 @@
       },
       {
         "id": "s-ong-pul-3",
-        "event_id": "EVT-ENG-2026-00109",
+        "event_id": "EVT_ENG_161026_0109",
         "department": "OPERATING",
         "role": "STATION_MASTER",
         "officer_id": "SM_PNBE_01",
@@ -792,7 +792,7 @@
     "permits": [
       {
         "id": "p-ong-pul-1",
-        "event_id": "EVT-ENG-2026-00109",
+        "event_id": "EVT_ENG_161026_0109",
         "permit_type": "CIVIL_TRACK_BLOCK",
         "earthing_discharged": false,
         "power_tripped": false,
@@ -804,9 +804,9 @@
     ]
   },
   {
-    "id": "EVT-OHE-2026-00104",
+    "id": "EVT_OHE_161026_0104",
     "division": "DNR",
-    "section": "Ara–Danapur",
+    "section": "Ara\u2013Danapur",
     "track_id": "UP_MAIN",
     "km_start": 141.2,
     "km_end": 142,
@@ -815,7 +815,7 @@
     "requested_start": "2026-10-16T11:30:00Z",
     "requested_end": "2026-10-16T14:30:00Z",
     "fencing_token": 884,
-    "description": "Emergency Catenary Contact Wire Splicing (Permit Form3-PTW Active • Earthing Grounded)",
+    "description": "Emergency Catenary Contact Wire Splicing (Permit Form3-PTW Active \u2022 Earthing Grounded)",
     "originator_id": "SSE_OHE_WDA_04",
     "status_color": "#3B82F6",
     "created_at": "2026-10-16T06:30:00Z",
@@ -833,7 +833,7 @@
     "stakeholders": [
       {
         "id": "s-ong-wda-1",
-        "event_id": "EVT-OHE-2026-00104",
+        "event_id": "EVT_OHE_161026_0104",
         "department": "OHE",
         "role": "TPC",
         "officer_id": "TPC_DDU_01",
@@ -843,7 +843,7 @@
       },
       {
         "id": "s-ong-wda-2",
-        "event_id": "EVT-OHE-2026-00104",
+        "event_id": "EVT_OHE_161026_0104",
         "department": "OPERATING",
         "role": "SECTION_CONTROLLER",
         "officer_id": "CTRL_SEC_DNR_02",
@@ -853,7 +853,7 @@
       },
       {
         "id": "s-ong-wda-3",
-        "event_id": "EVT-OHE-2026-00104",
+        "event_id": "EVT_OHE_161026_0104",
         "department": "OPERATING",
         "role": "STATION_MASTER",
         "officer_id": "SM_PNBE_01",
@@ -865,7 +865,7 @@
     "permits": [
       {
         "id": "p-ong-wda-1",
-        "event_id": "EVT-OHE-2026-00104",
+        "event_id": "EVT_OHE_161026_0104",
         "permit_type": "FORM3_PTW",
         "earthing_discharged": true,
         "power_tripped": true,
@@ -877,9 +877,9 @@
     ]
   },
   {
-    "id": "EVT-SIG-2026-00114",
+    "id": "EVT_SIG_161026_0114",
     "division": "DNR",
-    "section": "Buxar–Ara Junction",
+    "section": "Buxar\u2013Ara Junction",
     "track_id": "DN_MAIN",
     "km_start": 118,
     "km_end": 119.5,
@@ -904,7 +904,7 @@
     "stakeholders": [
       {
         "id": "s-ong-nw-1",
-        "event_id": "EVT-SIG-2026-00114",
+        "event_id": "EVT_SIG_161026_0114",
         "department": "S_AND_T",
         "role": "FIELD_SUPERVISOR",
         "officer_id": "SSE_SIG_NGP_02",
@@ -914,7 +914,7 @@
       },
       {
         "id": "s-ong-nw-2",
-        "event_id": "EVT-SIG-2026-00114",
+        "event_id": "EVT_SIG_161026_0114",
         "department": "OPERATING",
         "role": "SECTION_CONTROLLER",
         "officer_id": "CTRL_SEC_DNR_02",
@@ -924,7 +924,7 @@
       },
       {
         "id": "s-ong-nw-3",
-        "event_id": "EVT-SIG-2026-00114",
+        "event_id": "EVT_SIG_161026_0114",
         "department": "OPERATING",
         "role": "STATION_MASTER",
         "officer_id": "IIT_Patna",
@@ -934,9 +934,9 @@
     "permits": []
   },
   {
-    "id": "EVT-PWY-2026-00116",
+    "id": "EVT_ENG_161026_0116",
     "division": "DNR",
-    "section": "Pt. Deen Dayal Upadhyaya–Buxar",
+    "section": "Pt. Deen Dayal Upadhyaya\u2013Buxar",
     "track_id": "UP_MAIN",
     "km_start": 72,
     "km_end": 74.5,
@@ -961,7 +961,7 @@
     "stakeholders": [
       {
         "id": "s-ong-ns-1",
-        "event_id": "EVT-PWY-2026-00116",
+        "event_id": "EVT_ENG_161026_0116",
         "department": "CIVIL_P_WAY",
         "role": "FIELD_SUPERVISOR",
         "officer_id": "SSE_PWAY_NGP_01",
@@ -971,7 +971,7 @@
       },
       {
         "id": "s-ong-ns-2",
-        "event_id": "EVT-PWY-2026-00116",
+        "event_id": "EVT_ENG_161026_0116",
         "department": "OPERATING",
         "role": "SECTION_CONTROLLER",
         "officer_id": "CTRL_SEC_DNR_02",
@@ -981,7 +981,7 @@
       },
       {
         "id": "s-ong-ns-3",
-        "event_id": "EVT-PWY-2026-00116",
+        "event_id": "EVT_ENG_161026_0116",
         "department": "OPERATING",
         "role": "STATION_MASTER",
         "officer_id": "IIT_Patna",
@@ -991,9 +991,9 @@
     "permits": []
   },
   {
-    "id": "EVT-HIST-2026-00082",
+    "id": "EVT_ENG_121026_0082",
     "division": "DNR",
-    "section": "Danapur–Patna Junction",
+    "section": "Danapur\u2013Patna Junction",
     "track_id": "UP_MAIN",
     "km_start": 152,
     "km_end": 155,
@@ -1018,7 +1018,7 @@
     "stakeholders": [
       {
         "id": "s-hist-pul-1",
-        "event_id": "EVT-HIST-2026-00082",
+        "event_id": "EVT_ENG_121026_0082",
         "department": "CIVIL_P_WAY",
         "role": "FIELD_SUPERVISOR",
         "officer_id": "SSE_PWAY_SEGM_03",
@@ -1028,7 +1028,7 @@
       },
       {
         "id": "s-hist-pul-2",
-        "event_id": "EVT-HIST-2026-00082",
+        "event_id": "EVT_ENG_121026_0082",
         "department": "OPERATING",
         "role": "SECTION_CONTROLLER",
         "officer_id": "CTRL_SEC_DNR_02",
@@ -1040,9 +1040,9 @@
     "permits": []
   },
   {
-    "id": "EVT-HIST-2026-00088",
+    "id": "EVT_OHE_091026_0088",
     "division": "DNR",
-    "section": "Ara–Danapur",
+    "section": "Ara\u2013Danapur",
     "track_id": "UP_MAIN",
     "km_start": 142.1,
     "km_end": 144,
@@ -1069,7 +1069,7 @@
     "stakeholders": [
       {
         "id": "s-hist-wda-1",
-        "event_id": "EVT-HIST-2026-00088",
+        "event_id": "EVT_OHE_091026_0088",
         "department": "OHE",
         "role": "TPC",
         "officer_id": "TPC_DDU_01",
@@ -1081,9 +1081,9 @@
     "permits": []
   },
   {
-    "id": "EVT-HIST-2026-00075",
+    "id": "EVT_SIG_081026_0075",
     "division": "DNR",
-    "section": "Buxar–Ara Junction",
+    "section": "Buxar\u2013Ara Junction",
     "track_id": "DN_MAIN",
     "km_start": 110,
     "km_end": 112,
@@ -1108,7 +1108,7 @@
     "stakeholders": [
       {
         "id": "s-hist-nw-1",
-        "event_id": "EVT-HIST-2026-00075",
+        "event_id": "EVT_SIG_081026_0075",
         "department": "S_AND_T",
         "role": "FIELD_SUPERVISOR",
         "officer_id": "SSE_SIG_NGP_02",
@@ -1120,9 +1120,9 @@
     "permits": []
   },
   {
-    "id": "EVT-HIST-2026-00069",
+    "id": "EVT_OHE_031026_0069",
     "division": "DNR",
-    "section": "Pt. Deen Dayal Upadhyaya–Buxar",
+    "section": "Pt. Deen Dayal Upadhyaya\u2013Buxar",
     "track_id": "UP_MAIN",
     "km_start": 80,
     "km_end": 82.5,
@@ -1149,7 +1149,7 @@
     "stakeholders": [
       {
         "id": "s-hist-ns-1",
-        "event_id": "EVT-HIST-2026-00069",
+        "event_id": "EVT_OHE_031026_0069",
         "department": "OHE",
         "role": "TPC",
         "officer_id": "TPC_DDU_01",
@@ -1161,9 +1161,9 @@
     "permits": []
   },
   {
-    "id": "EVT-HIST-2026-00062",
+    "id": "EVT_CW_021026_0062",
     "division": "DNR",
-    "section": "Ara–Danapur",
+    "section": "Ara\u2013Danapur",
     "track_id": "DOWN_LOOP",
     "km_start": 141.5,
     "km_end": 142.2,
@@ -1188,7 +1188,7 @@
     "stakeholders": [
       {
         "id": "s-hist-cw-1",
-        "event_id": "EVT-HIST-2026-00062",
+        "event_id": "EVT_CW_021026_0062",
         "department": "MECHANICAL_CW",
         "role": "FIELD_SUPERVISOR",
         "officer_id": "SSE_CW_WDA_01",
@@ -1198,7 +1198,7 @@
       },
       {
         "id": "s-hist-cw-2",
-        "event_id": "EVT-HIST-2026-00062",
+        "event_id": "EVT_CW_021026_0062",
         "department": "OPERATING",
         "role": "STATION_MASTER",
         "officer_id": "SM_ARA_01",
@@ -1210,9 +1210,9 @@
     "permits": []
   },
   {
-    "id": "EVT-HIST-2026-00058",
+    "id": "EVT_SAF_280926_0058",
     "division": "DNR",
-    "section": "Buxar–Ara Junction",
+    "section": "Buxar\u2013Ara Junction",
     "track_id": "DN_MAIN",
     "km_start": 115,
     "km_end": 119.5,
@@ -1237,7 +1237,7 @@
     "stakeholders": [
       {
         "id": "s-hist-saf-1",
-        "event_id": "EVT-HIST-2026-00058",
+        "event_id": "EVT_SAF_280926_0058",
         "department": "SAFETY",
         "role": "SAFETY_OFFICER",
         "officer_id": "DSC_SAFETY_NGP_01",

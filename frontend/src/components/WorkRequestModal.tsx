@@ -235,16 +235,21 @@ export const WorkRequestModal: React.FC<WorkRequestModalProps> = ({
     try {
       const deptCodeMap: Record<Department, string> = {
         OHE: 'OHE',
-        CIVIL_P_WAY: 'PWAY',
+        CIVIL_P_WAY: 'ENG',
         S_AND_T: 'SIG',
         MECHANICAL_CW: 'CW',
         SAFETY: 'SAF',
-        OPERATING: 'OPT',
+        OPERATING: 'OPR',
         COMMERCIAL: 'COM',
       };
       const deptCode = deptCodeMap[formData.department] || 'OHE';
-      const randomDigits = Math.floor(1000 + Math.random() * 9000);
-      const generatedId = `EVT-${deptCode}-2026-0${randomDigits}`;
+      const now = new Date();
+      const dd = String(now.getDate()).padStart(2, '0');
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const yy = String(now.getFullYear()).slice(-2);
+      const ddmmyy = `${dd}${mm}${yy}`;
+      const randomSerial = String(Math.floor(1000 + Math.random() * 9000));
+      const generatedId = `EVT_${deptCode}_${ddmmyy}_${randomSerial}`;
 
       const nowIso = new Date().toISOString();
       const startIso = new Date(`${formData.workDate}T${formData.startTime}:00Z`).toISOString();

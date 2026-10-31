@@ -309,21 +309,45 @@ async def create_operational_event(payload: OperationalEventCreate, request: Req
     CQRS Write Command: Creates new block requisition in PostgreSQL transactional storage.
     Commits Transactional Outbox, updates Redis read projection, and broadcasts via WebSocket.
     """
-    # Determine appropriate railway ID
-    if getattr(payload, "id", None) and payload.id:
+    conn = get_db_connection()
+    cur = conn.cursor()
+
+    # Determine appropriate railway ID adhering to nomenclature: EVT_(dept)_(ddmmyy)_(serial)
+    if getattr(payload, "id", None) and payload.id and payload.id.startswith("EVT_"):
         event_id = payload.id
     else:
         dept_code = "OHE"
-        if "PWAY" in (payload.originator_id or "") or "ENG" in (payload.originator_id or ""):
+        orig = (payload.originator_id or "").upper()
+        desc = (payload.description or "").upper()
+        if "PWAY" in orig or "ENG" in orig or "CIVIL" in orig:
             dept_code = "ENG"
-        elif "SIG" in (payload.originator_id or ""):
+        elif "SIG" in orig or "SIGNAL" in desc or "AXLE" in desc:
             dept_code = "SIG"
-        elif "CW" in (payload.originator_id or "") or "MECH" in (payload.originator_id or ""):
+        elif "CW" in orig or "MECH" in orig or "BRAKE" in desc or "WAGON" in desc:
             dept_code = "CW"
-        elif "SAF" in (payload.originator_id or ""):
+        elif "SAF" in orig or "SAFETY" in desc:
             dept_code = "SAF"
-        random_digits = Math_random_id = str(uuid.uuid4().int)[:5]
-        event_id = f"EVT-{dept_code}-2026-0{random_digits}"
+        elif "OPR" in orig or "SM" in orig or "CTRL" in orig:
+            dept_code = "OPR"
+        elif "OHE" in orig or "TRD" in orig:
+            dept_code = "OHE"
+
+        now_dt = datetime.now(timezone.utc)
+        ddmmyy = now_dt.strftime("%d%m%y")
+        prefix = f"EVT_{dept_code}_{ddmmyy}_"
+
+        # Determine next 4-digit serial for this department and date
+        cur.execute("SELECT id FROM operational_events WHERE id LIKE ? ORDER BY id DESC LIMIT 1", (f"{prefix}%",))
+        last_row = cur.fetchone()
+        if last_row and last_row["id"]:
+            try:
+                last_num = int(last_row["id"].split("_")[-1])
+                serial_str = f"{last_num + 1:04d}"
+            except Exception:
+                serial_str = f"{(uuid.uuid4().int % 9000) + 1000:04d}"
+        else:
+            serial_str = "0001"
+        event_id = f"{prefix}{serial_str}"
 
     now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
@@ -338,9 +362,6 @@ async def create_operational_event(payload: OperationalEventCreate, request: Req
     )
 
     # 2. Transactional RDS Write
-    conn = get_db_connection()
-    cur = conn.cursor()
-
     # Determine initial fencing token if not set
     fencing_token = getattr(payload, "fencing_token", None) or (800 + (uuid.uuid4().int % 199))
 
