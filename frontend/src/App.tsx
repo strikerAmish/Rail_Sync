@@ -23,6 +23,10 @@ import { SupportDrawer }     from './components/support/SupportDrawer';
 import { useSupportStore }   from './hooks/useSupportStore';
 import { CheckCircle2, X }   from 'lucide-react';
 import { onCorridorUpdate, broadcastCorridorUpdate } from './syncBridge';
+import { runLocalStorageEventMigration, migrateEventsArray } from './idMigration';
+
+// Run one-time migration for cached event IDs
+runLocalStorageEventMigration();
 
 export type View = 'workspace' | 'audit' | 'overview' | 'today' | 'chaos' | 'messages';
 
@@ -34,9 +38,10 @@ const getInitialEvents = (): OperationalEvent[] => {
     if (saved) {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        const savedIds = new Set(parsed.map((p: any) => p.id));
+        const migrated = migrateEventsArray(parsed);
+        const savedIds = new Set(migrated.map((p: any) => p.id));
         const filteredInit = INITIAL_OPERATIONAL_EVENTS.filter(e => !savedIds.has(e.id));
-        return [...parsed, ...filteredInit];
+        return [...migrated, ...filteredInit];
       }
     }
   } catch (_) {}
@@ -247,7 +252,8 @@ export function App() {
   // ── Load events from backend & merge with corridor dataset ──
   const loadEvents = useCallback(async () => {
     try {
-      const data = await fetchEvents();
+      const rawData = await fetchEvents();
+      const data = Array.isArray(rawData) ? migrateEventsArray(rawData) : rawData;
       if (Array.isArray(data) && data.length > 0) {
         // Merge live fetched events with local state so authoritative backend updates
         // are reflected while preserving client-side emergency stop state
@@ -271,6 +277,7 @@ export function App() {
                     ...(existing.station_actions || {}),
                     power_cut_granted: false,
                     traffic_block_granted: false,
+                    points_clamped_confirmed: (existing.station_actions || d.station_actions)?.points_clamped_confirmed ?? false,
                   }
                 };
               }
@@ -332,9 +339,24 @@ export function App() {
 
     const connect = () => {
       try {
-        const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const tp    = encodeURIComponent(getOrCreateTraceparent());
-        ws = new WebSocket(`${proto}//${window.location.host}/ws/corridor?traceparent=${tp}`);
+        const tp = encodeURIComponent(getOrCreateTraceparent());
+        let wsUrl = '';
+        if (import.meta.env.VITE_WS_URL) {
+          wsUrl = `${import.meta.env.VITE_WS_URL}?traceparent=${tp}`;
+        } else if (import.meta.env.VITE_API_URL) {
+          try {
+            const u = new URL(import.meta.env.VITE_API_URL);
+            const wsProto = u.protocol === 'https:' ? 'wss:' : 'ws:';
+            wsUrl = `${wsProto}//${u.host}/ws/corridor?traceparent=${tp}`;
+          } catch (_) {
+            const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            wsUrl = `${proto}//${window.location.host}/ws/corridor?traceparent=${tp}`;
+          }
+        } else {
+          const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+          wsUrl = `${proto}//${window.location.host}/ws/corridor?traceparent=${tp}`;
+        }
+        ws = new WebSocket(wsUrl);
 
         ws.onopen  = () => setWsConnected(true);
         ws.onclose = () => { setWsConnected(false); retryTimer = setTimeout(connect, 5000); };
@@ -418,8 +440,8 @@ export function App() {
         setToastMessage(`Geotagged Field Photo Proof attached to ${evId}!`);
         setTimeout(() => setToastMessage(null), 6000);
         loadEvents();
-      } else if (msg.type === 'BLOCK_CLEARED' || msg.type === 'TRACK_NORMALIZED') {
-        const evId = msg.data?.eventId || msg.data?.id;
+      } else if (msg.type === 'BLOCK_CLEARED' || msg.type === 'TRACK_NORMALIZED' || msg.type === 'BLOCK_CLEARED_AND_AUDIT_LOCKED') {
+        const evId = msg.data?.eventId || msg.data?.id || msg.data?.event_id;
         if (evId) {
           setEvents(prev => prev.map(e => e.id === evId ? {
             ...e,
@@ -430,6 +452,7 @@ export function App() {
               ...(e.station_actions || {}),
               power_cut_granted: false,
               traffic_block_granted: false,
+              points_clamped_confirmed: e.station_actions?.points_clamped_confirmed ?? false,
             }
           } : e));
           setAmbientNotifs(prev => [

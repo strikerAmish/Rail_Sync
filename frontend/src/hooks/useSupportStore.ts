@@ -60,7 +60,7 @@ export const INITIAL_DEMO_TICKETS: SupportTicket[] = [
     id: 'SUP-2026-0001',
     category: 'Data mismatch',
     severity: 'Medium',
-    relatedEventId: 'EVT-ENG-2026-00132',
+    relatedEventId: 'EVT_ENG_251026_0132',
     subject: 'Axle counter telemetry delay at Danapur Up Main crossover',
     description: 'During CSM-952 tamping pass, axle counter section 14A showed occupied for 180s after rake clear.',
     attachments: [
@@ -102,7 +102,7 @@ export const INITIAL_DEMO_TICKETS: SupportTicket[] = [
     id: 'SUP-2026-0002',
     category: 'Approval or Quorum issue',
     severity: 'Low',
-    relatedEventId: 'EVT-OHE-2026-00104',
+    relatedEventId: 'EVT_OHE_161026_0104',
     subject: 'Form ETR-3 token printing margin alignment',
     description: 'When generating PDF statutory permit on thermal ticket printer, QR code cut off by 2mm on right margin.',
     attachments: [],

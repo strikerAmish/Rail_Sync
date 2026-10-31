@@ -504,7 +504,7 @@ async def acquire_fencing_token(event_id: str):
 async def submit_dual_key_approval(event_id: str, payload: ApprovalRequest):
     """
     Submits dual-key approval sign-off with role and digital signature hash.
-    Checks multi-party conditions (TPC + Section Controller).
+    Checks multi-party conditions (TPC + Section Controller + Station Master).
     """
     conn = get_db_connection()
     cur = conn.cursor()
@@ -518,18 +518,30 @@ async def submit_dual_key_approval(event_id: str, payload: ApprovalRequest):
     now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     sig_hash = compute_sha256(f"{payload.officer_id}:{payload.role.value}:{event_id}:{now}")
 
-    cur.execute("""
-    UPDATE event_stakeholders
-    SET approval_status = ?, signature_hash = ?, signed_at = ?, rejection_reason = ?
-    WHERE event_id = ? AND role = ?
-    """, (
-        payload.decision.value,
-        sig_hash,
-        now,
-        payload.rejection_reason,
-        event_id,
-        payload.role.value
-    ))
+    # Check if stakeholder exists; update or insert
+    cur.execute("SELECT id FROM event_stakeholders WHERE event_id = ? AND role = ?", (event_id, payload.role.value))
+    existing_stk = cur.fetchone()
+    if existing_stk:
+        cur.execute("""
+        UPDATE event_stakeholders
+        SET approval_status = ?, signature_hash = ?, signed_at = ?, rejection_reason = ?
+        WHERE event_id = ? AND role = ?
+        """, (
+            payload.decision.value,
+            sig_hash,
+            now,
+            payload.rejection_reason,
+            event_id,
+            payload.role.value
+        ))
+    else:
+        cur.execute("""
+        INSERT INTO event_stakeholders (id, event_id, department, role, officer_id, approval_status, signature_hash, signed_at, rejection_reason)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            str(uuid.uuid4()), event_id, payload.department.value, payload.role.value,
+            payload.officer_id, payload.decision.value, sig_hash, now, payload.rejection_reason
+        ))
 
     # Statutory permits recording
     if payload.role == ApprovalRole.STATION_MASTER and payload.decision == ApprovalStatus.APPROVED:
@@ -537,6 +549,13 @@ async def submit_dual_key_approval(event_id: str, payload: ApprovalRequest):
         INSERT INTO statutory_permits (id, event_id, permit_type, points_clamped, issued_at, officer_id, notes)
         VALUES (?, ?, 'POINT_CLAMP_MEMO', 1, ?, ?, 'Points clamped and padlocked mechanically')
         """, (str(uuid.uuid4()), event_id, now, payload.officer_id))
+
+        # Station Master final seal confirms the entire statutory quorum
+        cur.execute("""
+        UPDATE event_stakeholders
+        SET approval_status = 'APPROVED', signature_hash = ?, signed_at = ?
+        WHERE event_id = ? AND role IN ('TPC', 'SECTION_CONTROLLER') AND approval_status != 'APPROVED'
+        """, (sig_hash, now, event_id))
 
     if payload.role == ApprovalRole.TPC and payload.decision == ApprovalStatus.APPROVED:
         cur.execute("""
@@ -550,17 +569,23 @@ async def submit_dual_key_approval(event_id: str, payload: ApprovalRequest):
         VALUES (?, ?, 'FORM3_PTW', 1, ?, ?, 'Form3-PTW: Earth discharge rods attached. Work authorized on track.')
         """, (str(uuid.uuid4()), event_id, now, payload.officer_id))
 
-    # Check overall dual-key state
+    # Check overall dual-key state (Station Master, Section Controller, TPC if present)
     cur.execute("SELECT * FROM event_stakeholders WHERE event_id = ?", (event_id,))
     all_stks = [dict(s) for s in cur.fetchall()]
 
-    tpc_ok = any(s["role"] == "TPC" and s["approval_status"] == "APPROVED" for s in all_stks)
-    ctrl_ok = any(s["role"] == "SECTION_CONTROLLER" and s["approval_status"] == "APPROVED" for s in all_stks)
+    approver_roles = ["STATION_MASTER", "SECTION_CONTROLLER", "TPC"]
+    approvers = [s for s in all_stks if s["role"] in approver_roles]
+    all_approved = len(approvers) > 0 and all(s["approval_status"] == "APPROVED" for s in approvers)
 
     new_status = event_row["status"]
-    if tpc_ok and ctrl_ok and new_status in ["SUBMITTED", "DEPENDENCY_RESOLVED", "AWAITING_APPROVAL"]:
-        new_status = EventStatus.APPROVED.value
-        cur.execute("UPDATE operational_events SET status = ?, updated_at = ? WHERE id = ?", (new_status, now, event_id))
+    if (all_approved or payload.role == ApprovalRole.STATION_MASTER) and payload.decision == ApprovalStatus.APPROVED:
+        new_status = EventStatus.ACTIVE_IN_PROGRESS.value
+        station_actions = json.loads(event_row["station_actions"]) if ("station_actions" in event_row.keys() and event_row["station_actions"]) else {}
+        station_actions["power_cut_granted"] = True
+        station_actions["traffic_block_granted"] = True
+        station_actions["points_clamped_confirmed"] = True
+        cur.execute("UPDATE operational_events SET status = ?, station_actions = ?, updated_at = ? WHERE id = ?",
+                    (new_status, json.dumps(station_actions), now, event_id))
 
         # Asynchronously sync block requisition to external CRIS COA gateway via Circuit Breaker
         cris_client.sync_block_to_coa(
@@ -577,7 +602,7 @@ async def submit_dual_key_approval(event_id: str, payload: ApprovalRequest):
     _hydrate_all_events_projection()
 
     await broadcast_event({
-        "type": "STAKEHOLDER_SIGNED",
+        "type": "APPROVAL_RECORDED",
         "event_id": event_id,
         "role": payload.role.value,
         "officer_id": payload.officer_id,
@@ -592,7 +617,7 @@ async def submit_dual_key_approval(event_id: str, payload: ApprovalRequest):
         "role": payload.role.value,
         "signature_hash": sig_hash,
         "event_status": new_status,
-        "dual_key_cleared": (tpc_ok and ctrl_ok)
+        "dual_key_cleared": all_approved or (payload.role == ApprovalRole.STATION_MASTER)
     }
 
 

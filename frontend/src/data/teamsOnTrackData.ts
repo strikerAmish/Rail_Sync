@@ -38,7 +38,7 @@ export interface TeamProfile {
 
 export const INITIAL_TEAM_PROFILES: Record<string, TeamProfile> = {
   // ── ONGOING TRACK BLOCK 1: Danapur–Patna Junction (UP MAIN) ──
-  'EVT-ENG-2026-00109': {
+  'EVT_ENG_161026_0109': {
     team_id: 'TEAM-PWAY-DNR-01',
     work_request_id: 'WR-2026-PWAY-9102',
     team_leader_name: 'Rajesh Kumar',
@@ -87,7 +87,7 @@ export const INITIAL_TEAM_PROFILES: Record<string, TeamProfile> = {
   },
 
   // ── ONGOING TRACK BLOCK 2: Ara–Danapur (UP MAIN) ──
-  'EVT-OHE-2026-00104': {
+  'EVT_OHE_161026_0104': {
     team_id: 'TEAM-OHE-ARA-04',
     work_request_id: 'WR-2026-OHE-8842',
     team_leader_name: 'Vikramaditya Rao',
@@ -135,7 +135,7 @@ export const INITIAL_TEAM_PROFILES: Record<string, TeamProfile> = {
   },
 
   // ── ONGOING TRACK BLOCK 3: Buxar–Ara Junction (DN MAIN) ──
-  'EVT-SIG-2026-00114': {
+  'EVT_SIG_161026_0114': {
     team_id: 'TEAM-SIG-ARA-02',
     work_request_id: 'WR-2026-SIG-7719',
     team_leader_name: 'K. S. Narayanan',
@@ -182,7 +182,7 @@ export const INITIAL_TEAM_PROFILES: Record<string, TeamProfile> = {
   },
 
   // ── ONGOING TRACK BLOCK 4: Pt. Deen Dayal Upadhyaya–Buxar (UP MAIN) ──
-  'EVT-PWY-2026-00116': {
+  'EVT_ENG_161026_0116': {
     team_id: 'TEAM-PWAY-DDU-02',
     work_request_id: 'WR-2026-PWAY-6551',
     team_leader_name: 'Harpreet Singh Dhillon',
@@ -230,7 +230,7 @@ export const INITIAL_TEAM_PROFILES: Record<string, TeamProfile> = {
   },
 
   // ── HISTORICAL SEALED RECORDS (Retained for audit trail / lookup) ──
-  'EVT-HIST-2026-00082': {
+  'EVT_ENG_121026_0082': {
     team_id: 'TEAM-PWAY-DNR-03',
     work_request_id: 'WR-2026-PWAY-8840',
     team_leader_name: 'Rajesh Kumar',

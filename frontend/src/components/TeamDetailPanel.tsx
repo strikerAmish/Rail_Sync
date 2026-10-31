@@ -517,7 +517,7 @@ export const TeamDetailPanel: React.FC<TeamDetailPanelProps> = ({
                   Digital Statutory Permit Memo (Form 3-PTW)
                 </div>
                 <div style={{ fontSize: 11, color: '#64748B' }}>
-                  Permit Number: PTW-ECR-{event.id.replace('EVT-', '')} • Form 3-PTW / IR-OPR-4 Active Authorization
+                  Permit Number: PTW-ECR-{event.id.replace(/^EVT[-_]/, '')} • Form 3-PTW / IR-OPR-4 Active Authorization
                 </div>
               </div>
             </div>
@@ -983,7 +983,7 @@ export const TeamDetailPanel: React.FC<TeamDetailPanelProps> = ({
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: 14, fontSize: 12 }}>
               <div style={{ background: '#F8FAFC', padding: '12px 14px', borderRadius: 8, border: '1px solid #E2E8F0' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-                  <div><strong>Permit ID:</strong> PTW-ECR-{event.id.replace('EVT-', '')}</div>
+                  <div><strong>Permit ID:</strong> PTW-ECR-{event.id.replace(/^EVT[-_]/, '')}</div>
                   <div><strong>Work Request ID:</strong> {teamProfile.work_request_id}</div>
                   <div><strong>Corridor Section:</strong> {event.section}</div>
                   <div><strong>Line Affected:</strong> {event.track_id.replace(/_/g, ' ')}</div>

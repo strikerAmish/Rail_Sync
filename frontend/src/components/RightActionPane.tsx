@@ -222,43 +222,86 @@ export const RightActionPane: React.FC<RightActionPaneProps> = ({
   const handleSign = async (role: ApprovalRole, dept: Department, officerId: string) => {
     setLoadingRole(role);
     setErrorMsg(null);
+
+    // Optimistic local update
+    const updatedStks = [...(event.stakeholders || [])];
+    const existingIdx = updatedStks.findIndex(s => s.role === role);
+    const nowIso = new Date().toISOString();
+    const sigHash = '8f3ca9b' + Math.random().toString(16).substring(2, 10);
+
+    if (existingIdx >= 0) {
+      updatedStks[existingIdx] = {
+        ...updatedStks[existingIdx],
+        approval_status: 'APPROVED',
+        signed_at: nowIso,
+        signature_hash: sigHash,
+      };
+    } else {
+      updatedStks.push({
+        id: 'stk-' + Date.now(),
+        event_id: event.id,
+        department: dept,
+        role,
+        officer_id: officerId,
+        approval_status: 'APPROVED',
+        signature_hash: sigHash,
+        signed_at: nowIso,
+      });
+    }
+
+    if (role === 'STATION_MASTER') {
+      // Station Master granting final master seal confirms statutory clearances
+      for (const reqRole of ['TPC', 'SECTION_CONTROLLER'] as ApprovalRole[]) {
+        const stkIdx = updatedStks.findIndex(s => s.role === reqRole);
+        if (stkIdx >= 0) {
+          updatedStks[stkIdx] = {
+            ...updatedStks[stkIdx],
+            approval_status: 'APPROVED',
+            signed_at: nowIso,
+            signature_hash: sigHash,
+          };
+        }
+      }
+    }
+
+    const approverRoles = ['STATION_MASTER', 'SECTION_CONTROLLER', 'TPC'];
+    const approvers = updatedStks.filter(s => approverRoles.includes(s.role));
+    const allApproversDone = approvers.length > 0 && approvers.every(s => s.approval_status === 'APPROVED');
+
+    let updatedEvent: OperationalEvent = {
+      ...event,
+      stakeholders: updatedStks,
+    };
+
+    // Once all permissions are granted (or Station Master grants seal):
+    // Automatically advance to Stage 6 (Active on Track) so it immediately moves to Ongoing Work!
+    if (allApproversDone || role === 'STATION_MASTER') {
+      updatedEvent.fsm_stage = 6;
+      updatedEvent.status = 'ACTIVE_IN_PROGRESS';
+      updatedEvent.status_color = '#DC2626';
+      updatedEvent.station_actions = {
+        ...(updatedEvent.station_actions || {}),
+        power_cut_granted: true,
+        traffic_block_granted: true,
+        points_clamped_confirmed: true,
+      };
+    } else {
+      // Partial approval: advance to Stage 4 (Awaiting Approval)
+      updatedEvent.fsm_stage = Math.max(updatedEvent.fsm_stage || 2, 4);
+      updatedEvent.status = 'AWAITING_APPROVAL';
+      updatedEvent.status_color = '#F59E0B';
+    }
+
+    if (onUpdateEvent) onUpdateEvent(updatedEvent);
+    broadcastCorridorUpdate('EVENT_UPDATED', updatedEvent);
+
     try {
       await submitApproval(event.id, dept, role, officerId, 'APPROVED');
       setActionMsg(`✓ Statutory approval successfully recorded for ${officerId} (${dept})`);
       onRefresh();
     } catch {
-      // Local optimistic update so UI is immediately responsive even offline
-      const existing = event.stakeholders.find(s => s.role === role);
-      if (existing) {
-        existing.approval_status = 'APPROVED';
-        existing.signed_at = new Date().toISOString();
-        existing.signature_hash = '8f3ca9b' + Math.random().toString(16).substring(2, 10);
-      } else {
-        event.stakeholders.push({
-          id: 'stk-' + Date.now(),
-          event_id: event.id,
-          department: dept,
-          role,
-          officer_id: officerId,
-          approval_status: 'APPROVED',
-          signature_hash: '8f3ca9b' + Math.random().toString(16).substring(2, 10),
-          signed_at: new Date().toISOString(),
-        });
-      }
-
-      // Check if all approvals are now completed to auto-advance FSM to Stage 5 (Approved)
-      const isTpcDone = role === 'TPC' || event.stakeholders.find(s => s.role === 'TPC')?.approval_status === 'APPROVED';
-      const isCtrlDone = role === 'SECTION_CONTROLLER' || event.stakeholders.find(s => s.role === 'SECTION_CONTROLLER')?.approval_status === 'APPROVED';
-      const isSmDone = role === 'STATION_MASTER' || event.stakeholders.find(s => s.role === 'STATION_MASTER')?.approval_status === 'APPROVED';
-
-      if (isTpcDone && isCtrlDone && isSmDone && event.fsm_stage < 5) {
-        handleAdvanceStage(5);
-        setActionMsg(`✓ Quorum completed! Approved by ${officerId}. FSM automatically advanced to Stage 5: Approved.`);
-      } else {
-        setActionMsg(`✓ Statutory approval granted by ${officerId} (${dept})`);
-        if (onUpdateEvent) onUpdateEvent({ ...event });
-        else onRefresh();
-      }
+      setActionMsg(`✓ Statutory approval granted by ${officerId} (${dept})`);
+      onRefresh();
     } finally {
       setLoadingRole(null);
     }
@@ -325,11 +368,24 @@ export const RightActionPane: React.FC<RightActionPaneProps> = ({
       joined_at: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
     };
 
-    setPiggybackedList(prev => [...prev, newEntry]);
+    const updatedPiggy = [...piggybackedList, newEntry];
+    setPiggybackedList(updatedPiggy);
     setShowPiggybackModal(false);
     setNewPiggyDesc('');
     setNewPiggySuper('');
-    setActionMsg(`✓ Successfully piggybacked ${newPiggyDept} onto this block window! Zero extra possession time requested.`);
+
+    // Advance to Stage 3 (Dep. Resolved) when piggybacking is added
+    const targetStage = Math.max(event.fsm_stage || 2, 3);
+    const updatedEvent: OperationalEvent = {
+      ...event,
+      piggybacked_depts: updatedPiggy,
+      fsm_stage: targetStage,
+      status: targetStage === 3 ? 'DEPENDENCY_RESOLVED' : event.status,
+      status_color: targetStage === 3 ? '#F59E0B' : event.status_color,
+    };
+    if (onUpdateEvent) onUpdateEvent(updatedEvent);
+    broadcastCorridorUpdate('EVENT_UPDATED', updatedEvent);
+    setActionMsg(`✓ Successfully piggybacked ${newPiggyDept}! FSM automatically advanced to Stage 3: Dep. Resolved.`);
   };
 
   // Photo details
@@ -557,7 +613,7 @@ export const RightActionPane: React.FC<RightActionPaneProps> = ({
               <FileText size={13} color="#2563EB" /> Safety &amp; Restriction Report
             </button>
 
-            {isOngoing && (
+            {(isOngoing || isApproved) && (
               <button
                 type="button"
                 onClick={e => {
@@ -1606,112 +1662,90 @@ export const RightActionPane: React.FC<RightActionPaneProps> = ({
             <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>
               Operational FSM Stage Tracker
             </span>
-            <span style={{ fontSize: 10, fontWeight: 700, background: '#EFF6FF', color: '#1D4ED8', border: '1px solid #BFDBFE', padding: '1px 6px', borderRadius: 4 }}>
-              Interactive G&amp;SR Lifecycle
+            <span style={{ fontSize: 10, fontWeight: 700, background: '#DCFCE7', color: '#15803D', border: '1px solid #BBF7D0', padding: '1px 6px', borderRadius: 4 }}>
+              ● Automated Real-Time Status
             </span>
           </div>
 
-          {/* Stepper Quick Navigation Controls */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <button
-              onClick={() => handleSelectFsmStage(effectiveStep - 1)}
-              disabled={effectiveStep === 0 || isHistoricalSealed}
-              id="fsm-prev-btn"
-              title="Step back to previous operational stage"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 4,
-                padding: '4px 10px',
-                borderRadius: 6,
-                border: '1px solid #CBD5E1',
-                background: effectiveStep === 0 || isHistoricalSealed ? '#F8FAFC' : '#FFFFFF',
-                color: effectiveStep === 0 || isHistoricalSealed ? '#94A3B8' : '#334155',
-                fontSize: 11,
-                fontWeight: 600,
-                cursor: effectiveStep === 0 || isHistoricalSealed ? 'not-allowed' : 'pointer',
-                transition: 'all 0.15s ease',
-              }}
-            >
-              <ChevronLeft size={13} /> Prev Stage
-            </button>
-            <button
-              onClick={() => handleSelectFsmStage(effectiveStep + 1)}
-              disabled={effectiveStep === STEPPER.length - 1 || isHistoricalSealed}
-              id="fsm-next-btn"
-              title="Advance forward to next operational stage"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 4,
-                padding: '4px 10px',
-                borderRadius: 6,
-                border: '1px solid #93C5FD',
-                background: effectiveStep === STEPPER.length - 1 || isHistoricalSealed ? '#F8FAFC' : '#EFF6FF',
-                color: effectiveStep === STEPPER.length - 1 || isHistoricalSealed ? '#94A3B8' : '#1D4ED8',
-                fontSize: 11,
-                fontWeight: 600,
-                cursor: effectiveStep === STEPPER.length - 1 || isHistoricalSealed ? 'not-allowed' : 'pointer',
-                transition: 'all 0.15s ease',
-              }}
-            >
-              Next Stage <ChevronRight size={13} />
-            </button>
-          </div>
+          <span style={{ fontSize: 11, color: '#64748B', fontWeight: 500 }}>
+            Auto-advances on action • Stage 7 Manual Normalization
+          </span>
         </div>
 
-        {/* 7-Step Interactive Stepper Pills */}
+        {/* 7-Step Real-Time Status Pills */}
         <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px 0', fontSize: 12 }}>
           {STEPPER.map((step, idx) => {
             const isCurrent = idx === effectiveStep;
             const isPast    = idx < effectiveStep;
             const isLast    = idx === STEPPER.length - 1;
+            const isNormalizePill = idx === 6;
 
             return (
               <React.Fragment key={step.num}>
-                <button
-                  type="button"
-                  onClick={() => handleSelectFsmStage(idx)}
-                  disabled={isHistoricalSealed}
-                  id={`fsm-step-btn-${step.num}`}
-                  title={`Click to set corridor stage: ${step.num}. ${step.label} (${step.status})`}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 5,
-                    padding: isCurrent ? '4px 10px' : '4px 8px',
-                    borderRadius: 20,
-                    border: isCurrent
-                      ? '1.5px solid #2563EB'
-                      : isPast
-                      ? '1px solid #BBF7D0'
-                      : '1px solid #E2E8F0',
-                    background: isCurrent
-                      ? '#EFF6FF'
-                      : isPast
-                      ? '#F0FDF4'
-                      : '#FFFFFF',
-                    color: isCurrent
-                      ? '#1D4ED8'
-                      : isPast
-                      ? '#15803D'
-                      : '#64748B',
-                    fontWeight: isCurrent ? 700 : isPast ? 600 : 500,
-                    fontSize: 11.5,
-                    cursor: isHistoricalSealed ? 'default' : 'pointer',
-                    transition: 'all 0.15s ease',
-                    boxShadow: isCurrent ? '0 1px 3px rgba(37,99,235,0.15)' : 'none',
-                  }}
-                >
-                  {isPast ? (
+                {isNormalizePill && effectiveStep === 5 ? (
+                  <button
+                    type="button"
+                    onClick={() => handleAdvanceStage(7)}
+                    id="fsm-normalize-pill-btn"
+                    title="Click to normalize track and seal record (Move to History)"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      padding: '4px 10px',
+                      borderRadius: 20,
+                      border: '1.5px solid #16A34A',
+                      background: '#F0FDF4',
+                      color: '#15803D',
+                      fontWeight: 700,
+                      fontSize: 11.5,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      boxShadow: '0 1px 3px rgba(22,163,74,0.2)',
+                    }}
+                  >
                     <CheckCircle2 size={12} color="#16A34A" />
-                  ) : isCurrent ? (
-                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#2563EB' }} />
-                  ) : (
-                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#CBD5E1' }} />
-                  )}
-                  <span>{step.num}. {step.label}</span>
-                </button>
+                    <span>7. Normalize Track (Click to Finalize)</span>
+                  </button>
+                ) : (
+                  <div
+                    id={`fsm-step-pill-${step.num}`}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      padding: isCurrent ? '4px 10px' : '4px 8px',
+                      borderRadius: 20,
+                      border: isCurrent
+                        ? '1.5px solid #2563EB'
+                        : isPast
+                        ? '1px solid #BBF7D0'
+                        : '1px solid #E2E8F0',
+                      background: isCurrent
+                        ? '#EFF6FF'
+                        : isPast
+                        ? '#F0FDF4'
+                        : '#FFFFFF',
+                      color: isCurrent
+                        ? '#1D4ED8'
+                        : isPast
+                        ? '#15803D'
+                        : '#64748B',
+                      fontWeight: isCurrent ? 700 : isPast ? 600 : 500,
+                      fontSize: 11.5,
+                      boxShadow: isCurrent ? '0 1px 3px rgba(37,99,235,0.15)' : 'none',
+                    }}
+                  >
+                    {isPast ? (
+                      <CheckCircle2 size={12} color="#16A34A" />
+                    ) : isCurrent ? (
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#2563EB' }} />
+                    ) : (
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#CBD5E1' }} />
+                    )}
+                    <span>{step.num}. {step.label}</span>
+                  </div>
+                )}
                 {!isLast && <span className="fsm-dash" />}
               </React.Fragment>
             );
@@ -1740,73 +1774,50 @@ export const RightActionPane: React.FC<RightActionPaneProps> = ({
             <span style={{ color: '#94A3B8' }}>•</span>
             <span>{STEPPER[effectiveStep]?.desc}</span>
           </div>
-          <span style={{ fontSize: 10.5, color: '#94A3B8', fontStyle: 'italic' }}>
-            Click any stage pill to switch
+          <span style={{ fontSize: 10.5, color: '#15803D', fontWeight: 600 }}>
+            ✓ Real-time corridor sync active
           </span>
         </div>
 
-        {/* ── FSM Stage Step Navigation Controls ── */}
+        {/* ── Operational Corridor Progress Strip ── */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginTop: 12, paddingTop: 10, borderTop: '1px solid #E2E8F0' }}>
-          <button
-            type="button"
-            onClick={() => handleAdvanceStage(effectiveStep)}
-            disabled={effectiveStep === 0}
-            id="fsm-prev-stage-btn"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 5,
-              padding: '6px 12px',
-              borderRadius: 6,
-              border: '1px solid #CBD5E1',
-              background: '#FFFFFF',
-              color: effectiveStep === 0 ? '#94A3B8' : '#334155',
-              fontSize: 11.5,
-              fontWeight: 600,
-              cursor: effectiveStep === 0 ? 'not-allowed' : 'pointer',
-              opacity: effectiveStep === 0 ? 0.6 : 1,
-            }}
-          >
-            <ChevronLeft size={13} />
-            Previous Stage {effectiveStep > 0 ? `(${STEPPER[effectiveStep - 1]?.label})` : ''}
-          </button>
-
           <span style={{ fontSize: 11, color: '#64748B', fontWeight: 500 }}>
             Corridor Progress: <strong>Stage {effectiveStep + 1} of 7</strong> ({STEPPER[effectiveStep]?.label})
           </span>
 
-          <button
-            type="button"
-            onClick={() => handleAdvanceStage(effectiveStep + 2)}
-            disabled={effectiveStep === 6}
-            id="fsm-next-stage-btn"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 5,
-              padding: '6px 14px',
-              borderRadius: 6,
-              border: 'none',
-              background: effectiveStep === 6 ? '#94A3B8' : effectiveStep === 4 ? '#DC2626' : effectiveStep === 5 ? '#16A34A' : '#2563EB',
-              color: '#FFFFFF',
-              fontSize: 11.5,
-              fontWeight: 700,
-              cursor: effectiveStep === 6 ? 'not-allowed' : 'pointer',
-              opacity: effectiveStep === 6 ? 0.6 : 1,
-              boxShadow: effectiveStep === 4 ? '0 2px 6px rgba(220,38,38,0.25)' : 'none',
-            }}
-          >
-            <span>
-              {effectiveStep === 4
-                ? '⚡ Activate Track Possession (➔ Stage 6)'
-                : effectiveStep === 5
-                ? '✓ Normalize Track (➔ Stage 7)'
-                : effectiveStep < 6
-                ? `Advance Stage (➔ ${STEPPER[effectiveStep + 1]?.label})`
-                : 'Corridor Fully Normalized'}
+          {effectiveStep === 5 ? (
+            <button
+              type="button"
+              onClick={() => handleAdvanceStage(7)}
+              id="fsm-normalize-action-btn"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 5,
+                padding: '6px 14px',
+                borderRadius: 6,
+                border: 'none',
+                background: '#16A34A',
+                color: '#FFFFFF',
+                fontSize: 11.5,
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 2px 6px rgba(22,163,74,0.25)',
+              }}
+            >
+              <CheckCircle2 size={13} />
+              <span>Normalize Track (➔ Move to History)</span>
+            </button>
+          ) : effectiveStep === 6 ? (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, color: '#15803D', fontWeight: 700, fontSize: 11.5 }}>
+              <CheckCircle2 size={13} />
+              Corridor Fully Normalized &amp; Sealed in History
             </span>
-            {effectiveStep < 6 && <ChevronRight size={13} />}
-          </button>
+          ) : (
+            <span style={{ fontSize: 11, color: '#94A3B8', fontStyle: 'italic' }}>
+              Auto-advances to Ongoing Work when clearances are sealed
+            </span>
+          )}
         </div>
       </div>
 
@@ -2327,10 +2338,10 @@ export const RightActionPane: React.FC<RightActionPaneProps> = ({
 
       {/* ── Modal 4: Comprehensive Statutory Safety Restriction & Protocol Report (Form 3-PTW) ── */}
       {showSafetyReportModal && (() => {
-        const isEng = event.id === 'EVT-ENG-2026-00109' || event.id.includes('ENG') || event.id.includes('PWY') || event.description?.toLowerCase().includes('tamping');
-        const isOhe = event.id === 'EVT-OHE-2026-00104' || event.id.includes('OHE') || Boolean(event.impact_vector?.catenary_25kv_power_trip);
-        const isSig = event.id === 'EVT-SIG-2026-00114' || event.id.includes('SIG') || event.id.includes('SNT');
-        const isBridge = event.id === 'EVT-PWY-2026-00116' || event.description?.toLowerCase().includes('bridge');
+        const isEng = event.id === 'EVT_ENG_161026_0109' || event.id.includes('ENG') || event.id.includes('PWY') || event.description?.toLowerCase().includes('tamping');
+        const isOhe = event.id === 'EVT_OHE_161026_0104' || event.id.includes('OHE') || Boolean(event.impact_vector?.catenary_25kv_power_trip);
+        const isSig = event.id === 'EVT_SIG_161026_0114' || event.id.includes('SIG') || event.id.includes('SNT');
+        const isBridge = event.id === 'EVT_ENG_161026_0116' || event.description?.toLowerCase().includes('bridge');
 
         const permitNo = `PTW-${event.division || 'DNR'}-2026-${event.fencing_token || '885'}`;
         const cautionOrderNo = `CO/DNR/2026/T-${event.fencing_token || '885'}`;

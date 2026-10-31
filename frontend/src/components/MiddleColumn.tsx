@@ -26,26 +26,45 @@ const TAB_CONFIG = [
 ];
 
 export const getEventCategory = (e: OperationalEvent): number => {
-  // If work was suspended via Emergency Stop, route to Pending Approvals (Tab 1)
-  if (e.is_suspended || (e.status as string) === 'SUSPENDED - EMERGENCY STOP') {
-    return 1;
-  }
-  // History tab: Stage 7 Normalized, Block Cleared, Audit Locked, Cancelled, Rejected
-  if (e.fsm_stage === 7 || e.status === 'BLOCK_CLEARED' || e.status === 'AUDIT_LOCKED' || e.status === 'CANCELLED' || e.status === 'REJECTED') {
+  // 1. History Tab (Tab 2): Completed work, normalized tracks, and sealed records
+  const isCompletedOrSealed =
+    e.fsm_stage === 7 ||
+    e.status === 'BLOCK_CLEARED' ||
+    e.status === 'AUDIT_LOCKED' ||
+    e.status === 'WORK_COMPLETED' ||
+    e.status === 'SAFETY_VERIFIED' ||
+    e.status === 'CANCELLED' ||
+    e.status === 'REJECTED';
+
+  if (isCompletedOrSealed) {
     return 2;
   }
 
-  // Statutory check: Work cannot be physically ongoing on track unless all required quorum sign-offs are granted!
-  const hasPendingApprovals = e.stakeholders && e.stakeholders.length > 0 && e.stakeholders.some(s => s.approval_status !== 'APPROVED');
+  // 2. If work was suspended via Emergency Stop, route to Pending Approvals (Tab 1)
+  if (e.is_suspended || (e.status as string) === 'SUSPENDED - EMERGENCY STOP') {
+    return 1;
+  }
+
+  // 3. Statutory Check: Quorum approvers (Station Master, Section Controller, TPC)
+  const approverRoles = ['STATION_MASTER', 'SECTION_CONTROLLER', 'TPC'];
+  const approverStakeholders = e.stakeholders?.filter(s => approverRoles.includes(s.role)) || [];
+  const hasPendingApprover = approverStakeholders.some(s => s.approval_status !== 'APPROVED');
   const smApproval = e.stakeholders?.find(s => s.role === 'STATION_MASTER');
   const isSmPending = smApproval ? smApproval.approval_status !== 'APPROVED' : false;
 
-  // Ongoing Work tab (Tab 0): ONLY if genuinely Stage 6 AND no statutory quorum sign-offs are pending
-  if ((e.fsm_stage === 6 || e.status === 'ACTIVE_IN_PROGRESS' || e.status === 'WORK_COMPLETED') && !hasPendingApprovals && !isSmPending) {
-    return 0;
+  // 4. Ongoing Work Tab (Tab 0): Permission granted / Active work
+  // Once permission is granted (all required statutory approvers approved OR marked APPROVED/SCHEDULED/ACTIVE_IN_PROGRESS):
+  const isExplicitlyApprovedOrActive =
+    e.status === 'ACTIVE_IN_PROGRESS' ||
+    e.status === 'APPROVED' ||
+    e.status === 'SCHEDULED' ||
+    (typeof e.fsm_stage === 'number' && e.fsm_stage >= 5 && e.fsm_stage < 7);
+
+  if ((isExplicitlyApprovedOrActive || (approverStakeholders.length > 0 && !hasPendingApprover)) && !isSmPending) {
+    return 0; // Tab 0: Ongoing Work
   }
 
-  // If any statutory approval is pending or stage < 6, route to Pending Approvals (Tab 1)
+  // 5. Otherwise: Still awaiting statutory approvals -> Pending Approvals (Tab 1)
   return 1;
 };
 

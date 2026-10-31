@@ -97,13 +97,13 @@ export function useCountdown(
     if (isMockPast) {
       // Provide realistic active countdown anchors for demo
       let offsetMs = 45 * 60 * 1000; // default 45m left
-      if (eventId === 'EVT-ENG-2026-00109') {
+      if (eventId === 'EVT_ENG_161026_0109') {
         offsetMs = 45 * 60 * 1000 + 12 * 1000; // 00:45:12 remaining
-      } else if (eventId === 'EVT-OHE-2026-00104') {
+      } else if (eventId === 'EVT_OHE_161026_0104') {
         offsetMs = 1 * 3600 * 1000 + 23 * 60 * 1000 + 45 * 1000; // 01:23:45 remaining
-      } else if (eventId === 'EVT-SIG-2026-00114') {
+      } else if (eventId === 'EVT_SIG_161026_0114') {
         offsetMs = 2 * 3600 * 1000 + 10 * 60 * 1000; // 02:10:00 remaining
-      } else if (eventId === 'EVT-PWY-2026-00116') {
+      } else if (eventId === 'EVT_ENG_161026_0116') {
         offsetMs = -1 * (14 * 60 * 1000 + 20 * 1000); // Overdue (+00:14:20)
       }
 

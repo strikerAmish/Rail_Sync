@@ -5,6 +5,11 @@ import { OperationalEvent } from './types';
 import { fetchEvents, onCorridorUpdate, broadcastCorridorUpdate, getOrCreateTraceparent } from './api';
 import { INITIAL_OPERATIONAL_EVENTS } from './data/corridorData';
 
+import { runLocalStorageEventMigration, migrateEventsArray } from './idMigration';
+
+// Run one-time migration for cached event IDs
+runLocalStorageEventMigration();
+
 export function App() {
   const [currentUser, setCurrentUser] = useState<FieldUser | null>(() => {
     try {
@@ -27,7 +32,7 @@ export function App() {
       const saved = localStorage.getItem('railsync_events');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) return migrateEventsArray(parsed);
       }
     } catch (_) {}
     return INITIAL_OPERATIONAL_EVENTS;
@@ -44,7 +49,8 @@ export function App() {
   // Load events from backend / local storage
   const loadEvents = useCallback(async () => {
     try {
-      const data = await fetchEvents();
+      const rawData = await fetchEvents();
+      const data = Array.isArray(rawData) ? migrateEventsArray(rawData) : rawData;
       if (Array.isArray(data) && data.length > 0) {
         setEvents(prev => {
           const prevMap = new Map(prev.map(p => [p.id, p]));
@@ -58,7 +64,7 @@ export function App() {
                   ...d,
                   ...existing,
                   fsm_stage: 7,
-                  status: 'BLOCK_CLEARED',
+                  status: 'BLOCK_CLEARED' as const,
                   status_color: '#16A34A',
                 };
               }
@@ -94,10 +100,24 @@ export function App() {
 
     const connect = () => {
       try {
-        const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const host = window.location.host;
         const tp = encodeURIComponent(getOrCreateTraceparent());
-        ws = new WebSocket(`${proto}//${host}/ws/corridor?traceparent=${tp}`);
+        let wsUrl = '';
+        if (import.meta.env.VITE_WS_URL) {
+          wsUrl = `${import.meta.env.VITE_WS_URL}?traceparent=${tp}`;
+        } else if (import.meta.env.VITE_API_URL) {
+          try {
+            const u = new URL(import.meta.env.VITE_API_URL);
+            const wsProto = u.protocol === 'https:' ? 'wss:' : 'ws:';
+            wsUrl = `${wsProto}//${u.host}/ws/corridor?traceparent=${tp}`;
+          } catch (_) {
+            const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            wsUrl = `${proto}//${window.location.host}/ws/corridor?traceparent=${tp}`;
+          }
+        } else {
+          const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+          wsUrl = `${proto}//${window.location.host}/ws/corridor?traceparent=${tp}`;
+        }
+        ws = new WebSocket(wsUrl);
 
         ws.onopen = () => setWsConnected(true);
         ws.onclose = () => {
@@ -139,17 +159,19 @@ export function App() {
         msg.type === 'APPROVAL_RECORDED' ||
         msg.type === 'EVENT_UPDATED' ||
         msg.type === 'BLOCK_CLEARED' ||
-        msg.type === 'TRACK_NORMALIZED'
+        msg.type === 'TRACK_NORMALIZED' ||
+        msg.type === 'BLOCK_CLEARED_AND_AUDIT_LOCKED'
       ) {
-        if (msg.type === 'BLOCK_CLEARED' || msg.type === 'TRACK_NORMALIZED') {
-          const evId = msg.data?.eventId || msg.data?.id;
+        if (msg.type === 'BLOCK_CLEARED' || msg.type === 'TRACK_NORMALIZED' || msg.type === 'BLOCK_CLEARED_AND_AUDIT_LOCKED') {
+          const evId = msg.data?.eventId || msg.data?.id || msg.data?.event_id;
           if (evId) {
             setEvents(prev => prev.map(e => e.id === evId ? {
               ...e,
-              status: 'BLOCK_CLEARED',
+              status: 'BLOCK_CLEARED' as const,
               fsm_stage: 7,
               status_color: '#16A34A',
               station_actions: {
+                points_clamped_confirmed: false,
                 ...(e.station_actions || {}),
                 power_cut_granted: false,
                 traffic_block_granted: false,

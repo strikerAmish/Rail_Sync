@@ -62,7 +62,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
   // ===============================================================
   // 1. Danapur–Patna Junction (UP MAIN)
   {
-    id: 'EVT-ENG-2026-00132',
+    id: 'EVT_ENG_251026_0132',
     division: 'DNR',
     section: 'Danapur–Patna Junction',
     track_id: 'UP_MAIN',
@@ -89,7 +89,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-pul-01',
-        event_id: 'EVT-ENG-2026-00132',
+        event_id: 'EVT_ENG_251026_0132',
         department: 'CIVIL_P_WAY',
         role: 'FIELD_SUPERVISOR',
         officer_id: 'SSE_PWAY_SEGM_03',
@@ -99,7 +99,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-pul-02',
-        event_id: 'EVT-ENG-2026-00132',
+        event_id: 'EVT_ENG_251026_0132',
         department: 'OPERATING',
         role: 'SECTION_CONTROLLER',
         officer_id: 'CTRL_SEC_DNR_02',
@@ -107,7 +107,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-pul-03',
-        event_id: 'EVT-ENG-2026-00132',
+        event_id: 'EVT_ENG_251026_0132',
         department: 'OPERATING',
         role: 'STATION_MASTER',
         officer_id: 'SM_PNBE_01',
@@ -117,7 +117,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-pul-04',
-        event_id: 'EVT-ENG-2026-00132',
+        event_id: 'EVT_ENG_251026_0132',
         department: 'OHE',
         role: 'TPC',
         officer_id: 'TPC_DDU_01',
@@ -129,7 +129,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     permits: [
       {
         id: 'p-pul-01',
-        event_id: 'EVT-ENG-2026-00132',
+        event_id: 'EVT_ENG_251026_0132',
         permit_type: 'CIVIL_TRACK_BLOCK',
         earthing_discharged: false,
         power_tripped: false,
@@ -207,7 +207,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
 
   // 2. Danapur–Patna Junction (UP MAIN) - OHE
   {
-    id: 'EVT-OHE-2026-00135',
+    id: 'EVT_OHE_161026_0135',
     division: 'DNR',
     section: 'Danapur–Patna Junction',
     track_id: 'UP_MAIN',
@@ -234,7 +234,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-pul-ohe-1',
-        event_id: 'EVT-OHE-2026-00135',
+        event_id: 'EVT_OHE_161026_0135',
         department: 'OHE',
         role: 'TPC',
         officer_id: 'TPC_DDU_01',
@@ -242,7 +242,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-pul-ohe-2',
-        event_id: 'EVT-OHE-2026-00135',
+        event_id: 'EVT_OHE_161026_0135',
         department: 'OPERATING',
         role: 'SECTION_CONTROLLER',
         officer_id: 'CTRL_SEC_DNR_02',
@@ -250,7 +250,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-pul-ohe-3',
-        event_id: 'EVT-OHE-2026-00135',
+        event_id: 'EVT_OHE_161026_0135',
         department: 'OPERATING',
         role: 'STATION_MASTER',
         officer_id: 'SM_PNBE_01',
@@ -264,7 +264,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
 
   // 3. Ara–Danapur (UP MAIN) - OHE
   {
-    id: 'EVT-OHE-2026-00125',
+    id: 'EVT_OHE_161026_0125',
     division: 'DNR',
     section: 'Ara–Danapur',
     track_id: 'UP_MAIN',
@@ -295,7 +295,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-wda-01',
-        event_id: 'EVT-OHE-2026-00125',
+        event_id: 'EVT_OHE_161026_0125',
         department: 'OHE',
         role: 'TPC',
         officer_id: 'TPC_DDU_01',
@@ -305,7 +305,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-wda-02',
-        event_id: 'EVT-OHE-2026-00125',
+        event_id: 'EVT_OHE_161026_0125',
         department: 'OPERATING',
         role: 'SECTION_CONTROLLER',
         officer_id: 'CTRL_SEC_DNR_02',
@@ -313,7 +313,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-wda-03',
-        event_id: 'EVT-OHE-2026-00125',
+        event_id: 'EVT_OHE_161026_0125',
         department: 'OPERATING',
         role: 'STATION_MASTER',
         officer_id: 'SM_PNBE_01',
@@ -323,7 +323,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-dnr-04',
-        event_id: 'EVT-OHE-2026-00125',
+        event_id: 'EVT_OHE_161026_0125',
         department: 'OHE',
         role: 'FIELD_SUPERVISOR',
         officer_id: 'SSE_OHE_DNR_04',
@@ -335,7 +335,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     permits: [
       {
         id: 'p-dnr-01',
-        event_id: 'EVT-OHE-2026-00125',
+        event_id: 'EVT_OHE_161026_0125',
         permit_type: 'ETR_1',
         earthing_discharged: false,
         power_tripped: true,
@@ -386,7 +386,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
 
   // 4. Ara–Danapur (UP MAIN) - S&T
   {
-    id: 'EVT-SIG-2026-00128',
+    id: 'EVT_SIG_161026_0128',
     division: 'DNR',
     section: 'Ara–Danapur',
     track_id: 'UP_MAIN',
@@ -413,7 +413,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-sig-01',
-        event_id: 'EVT-SIG-2026-00128',
+        event_id: 'EVT_SIG_161026_0128',
         department: 'S_AND_T',
         role: 'FIELD_SUPERVISOR',
         officer_id: 'SSE_SIG_WDA_01',
@@ -423,7 +423,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-sig-02',
-        event_id: 'EVT-SIG-2026-00128',
+        event_id: 'EVT_SIG_161026_0128',
         department: 'OPERATING',
         role: 'STATION_MASTER',
         officer_id: 'SM_PNBE_01',
@@ -433,7 +433,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-sig-03',
-        event_id: 'EVT-SIG-2026-00128',
+        event_id: 'EVT_SIG_161026_0128',
         department: 'OPERATING',
         role: 'SECTION_CONTROLLER',
         officer_id: 'CTRL_SEC_DNR_02',
@@ -445,7 +445,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
 
   // 5. Buxar–Ara Junction (DN MAIN) - OPERATING
   {
-    id: 'EVT-OPR-2026-00119',
+    id: 'EVT_OPR_161026_0119',
     division: 'DNR',
     section: 'Buxar–Ara Junction',
     track_id: 'DN_MAIN',
@@ -472,7 +472,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-nw-01',
-        event_id: 'EVT-OPR-2026-00119',
+        event_id: 'EVT_OPR_161026_0119',
         department: 'OPERATING',
         role: 'STATION_MASTER',
         officer_id: 'SM_PNBE_01',
@@ -482,7 +482,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-nw-02',
-        event_id: 'EVT-OPR-2026-00119',
+        event_id: 'EVT_OPR_161026_0119',
         department: 'OPERATING',
         role: 'SECTION_CONTROLLER',
         officer_id: 'CTRL_SEC_DNR_02',
@@ -494,7 +494,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
 
   // 6. Buxar–Ara Junction (DN MAIN) - S&T
   {
-    id: 'EVT-SIG-2026-00122',
+    id: 'EVT_SIG_161026_0122',
     division: 'DNR',
     section: 'Buxar–Ara Junction',
     track_id: 'DN_MAIN',
@@ -521,7 +521,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-nw-sig-1',
-        event_id: 'EVT-SIG-2026-00122',
+        event_id: 'EVT_SIG_161026_0122',
         department: 'S_AND_T',
         role: 'FIELD_SUPERVISOR',
         officer_id: 'SSE_SIG_NGP_02',
@@ -531,7 +531,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-nw-sig-2',
-        event_id: 'EVT-SIG-2026-00122',
+        event_id: 'EVT_SIG_161026_0122',
         department: 'OPERATING',
         role: 'SECTION_CONTROLLER',
         officer_id: 'CTRL_SEC_DNR_02',
@@ -543,7 +543,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
 
   // 7. Pt. Deen Dayal Upadhyaya–Buxar (UP MAIN) - P-Way
   {
-    id: 'EVT-PWY-2026-00140',
+    id: 'EVT_ENG_161026_0140',
     division: 'DNR',
     section: 'Pt. Deen Dayal Upadhyaya–Buxar',
     track_id: 'UP_MAIN',
@@ -570,7 +570,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-ns-01',
-        event_id: 'EVT-PWY-2026-00140',
+        event_id: 'EVT_ENG_161026_0140',
         department: 'CIVIL_P_WAY',
         role: 'FIELD_SUPERVISOR',
         officer_id: 'SSE_PWAY_NGP_01',
@@ -580,7 +580,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-ns-02',
-        event_id: 'EVT-PWY-2026-00140',
+        event_id: 'EVT_ENG_161026_0140',
         department: 'OPERATING',
         role: 'SECTION_CONTROLLER',
         officer_id: 'CTRL_SEC_DNR_02',
@@ -592,7 +592,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
 
   // 8. Pt. Deen Dayal Upadhyaya–Buxar (UP MAIN) - OHE
   {
-    id: 'EVT-OHE-2026-00144',
+    id: 'EVT_OHE_161026_0144',
     division: 'DNR',
     section: 'Pt. Deen Dayal Upadhyaya–Buxar',
     track_id: 'UP_MAIN',
@@ -619,7 +619,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-ns-ohe-1',
-        event_id: 'EVT-OHE-2026-00144',
+        event_id: 'EVT_OHE_161026_0144',
         department: 'OHE',
         role: 'TPC',
         officer_id: 'TPC_DDU_01',
@@ -627,7 +627,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-ns-ohe-2',
-        event_id: 'EVT-OHE-2026-00144',
+        event_id: 'EVT_OHE_161026_0144',
         department: 'OPERATING',
         role: 'SECTION_CONTROLLER',
         officer_id: 'CTRL_SEC_DNR_02',
@@ -639,7 +639,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
 
   // 9. Danapur–Patna Junction (UP MAIN) - Mechanical (C&W)
   {
-    id: 'EVT-CW-2026-00155',
+    id: 'EVT_CW_161026_0155',
     division: 'DNR',
     section: 'Danapur–Patna Junction',
     track_id: 'UP_GOODS_LOOP',
@@ -677,7 +677,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-cw-01',
-        event_id: 'EVT-CW-2026-00155',
+        event_id: 'EVT_CW_161026_0155',
         department: 'MECHANICAL_CW',
         role: 'FIELD_SUPERVISOR',
         officer_id: 'SSE_CW_SEGM_01',
@@ -687,7 +687,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-cw-02',
-        event_id: 'EVT-CW-2026-00155',
+        event_id: 'EVT_CW_161026_0155',
         department: 'OPERATING',
         role: 'SECTION_CONTROLLER',
         officer_id: 'CTRL_SEC_DNR_02',
@@ -695,7 +695,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-cw-03',
-        event_id: 'EVT-CW-2026-00155',
+        event_id: 'EVT_CW_161026_0155',
         department: 'OPERATING',
         role: 'STATION_MASTER',
         officer_id: 'SM_DNR_01',
@@ -707,7 +707,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
 
   // 10. Ara–Danapur (UP MAIN) - Safety & Security (RPF / Safety Directorate)
   {
-    id: 'EVT-SAF-2026-00160',
+    id: 'EVT_SAF_161026_0160',
     division: 'DNR',
     section: 'Ara–Danapur',
     track_id: 'UP_MAIN',
@@ -745,7 +745,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-saf-01',
-        event_id: 'EVT-SAF-2026-00160',
+        event_id: 'EVT_SAF_161026_0160',
         department: 'SAFETY',
         role: 'SAFETY_OFFICER',
         officer_id: 'DSC_SAFETY_NGP_01',
@@ -755,7 +755,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-saf-02',
-        event_id: 'EVT-SAF-2026-00160',
+        event_id: 'EVT_SAF_161026_0160',
         department: 'OPERATING',
         role: 'STATION_MASTER',
         officer_id: 'SM_ARA_01',
@@ -770,7 +770,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
   // ===============================================================
   // 9. Danapur–Patna Junction (UP MAIN) - P-Way
   {
-    id: 'EVT-ENG-2026-00109',
+    id: 'EVT_ENG_161026_0109',
     division: 'DNR',
     section: 'Danapur–Patna Junction',
     track_id: 'UP_MAIN',
@@ -797,7 +797,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-ong-pul-1',
-        event_id: 'EVT-ENG-2026-00109',
+        event_id: 'EVT_ENG_161026_0109',
         department: 'CIVIL_P_WAY',
         role: 'FIELD_SUPERVISOR',
         officer_id: 'SSE_PWAY_SEGM_03',
@@ -807,7 +807,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-ong-pul-2',
-        event_id: 'EVT-ENG-2026-00109',
+        event_id: 'EVT_ENG_161026_0109',
         department: 'OPERATING',
         role: 'SECTION_CONTROLLER',
         officer_id: 'CTRL_SEC_DNR_02',
@@ -817,7 +817,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-ong-pul-3',
-        event_id: 'EVT-ENG-2026-00109',
+        event_id: 'EVT_ENG_161026_0109',
         department: 'OPERATING',
         role: 'STATION_MASTER',
         officer_id: 'SM_PNBE_01',
@@ -829,7 +829,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     permits: [
       {
         id: 'p-ong-pul-1',
-        event_id: 'EVT-ENG-2026-00109',
+        event_id: 'EVT_ENG_161026_0109',
         permit_type: 'CIVIL_TRACK_BLOCK',
         earthing_discharged: false,
         power_tripped: false,
@@ -843,7 +843,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
 
   // 10. Ara–Danapur (UP MAIN) - OHE
   {
-    id: 'EVT-OHE-2026-00104',
+    id: 'EVT_OHE_161026_0104',
     division: 'DNR',
     section: 'Ara–Danapur',
     track_id: 'UP_MAIN',
@@ -870,7 +870,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-ong-wda-1',
-        event_id: 'EVT-OHE-2026-00104',
+        event_id: 'EVT_OHE_161026_0104',
         department: 'OHE',
         role: 'TPC',
         officer_id: 'TPC_DDU_01',
@@ -880,7 +880,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-ong-wda-2',
-        event_id: 'EVT-OHE-2026-00104',
+        event_id: 'EVT_OHE_161026_0104',
         department: 'OPERATING',
         role: 'SECTION_CONTROLLER',
         officer_id: 'CTRL_SEC_DNR_02',
@@ -890,7 +890,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-ong-wda-3',
-        event_id: 'EVT-OHE-2026-00104',
+        event_id: 'EVT_OHE_161026_0104',
         department: 'OPERATING',
         role: 'STATION_MASTER',
         officer_id: 'SM_PNBE_01',
@@ -902,7 +902,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     permits: [
       {
         id: 'p-ong-wda-1',
-        event_id: 'EVT-OHE-2026-00104',
+        event_id: 'EVT_OHE_161026_0104',
         permit_type: 'FORM3_PTW',
         earthing_discharged: true,
         power_tripped: true,
@@ -916,7 +916,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
 
   // 11. Buxar–Ara Junction (DN MAIN) - S&T
   {
-    id: 'EVT-SIG-2026-00114',
+    id: 'EVT_SIG_161026_0114',
     division: 'DNR',
     section: 'Buxar–Ara Junction',
     track_id: 'DN_MAIN',
@@ -943,7 +943,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-ong-nw-1',
-        event_id: 'EVT-SIG-2026-00114',
+        event_id: 'EVT_SIG_161026_0114',
         department: 'S_AND_T',
         role: 'FIELD_SUPERVISOR',
         officer_id: 'SSE_SIG_NGP_02',
@@ -953,7 +953,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-ong-nw-2',
-        event_id: 'EVT-SIG-2026-00114',
+        event_id: 'EVT_SIG_161026_0114',
         department: 'OPERATING',
         role: 'SECTION_CONTROLLER',
         officer_id: 'CTRL_SEC_DNR_02',
@@ -963,7 +963,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-ong-nw-3',
-        event_id: 'EVT-SIG-2026-00114',
+        event_id: 'EVT_SIG_161026_0114',
         department: 'OPERATING',
         role: 'STATION_MASTER',
         officer_id: 'IIT_Patna',
@@ -975,7 +975,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
 
   // 12. Pt. Deen Dayal Upadhyaya–Buxar (UP MAIN) - P-Way
   {
-    id: 'EVT-PWY-2026-00116',
+    id: 'EVT_ENG_161026_0116',
     division: 'DNR',
     section: 'Pt. Deen Dayal Upadhyaya–Buxar',
     track_id: 'UP_MAIN',
@@ -1002,7 +1002,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-ong-ns-1',
-        event_id: 'EVT-PWY-2026-00116',
+        event_id: 'EVT_ENG_161026_0116',
         department: 'CIVIL_P_WAY',
         role: 'FIELD_SUPERVISOR',
         officer_id: 'SSE_PWAY_NGP_01',
@@ -1012,7 +1012,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-ong-ns-2',
-        event_id: 'EVT-PWY-2026-00116',
+        event_id: 'EVT_ENG_161026_0116',
         department: 'OPERATING',
         role: 'SECTION_CONTROLLER',
         officer_id: 'CTRL_SEC_DNR_02',
@@ -1022,7 +1022,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-ong-ns-3',
-        event_id: 'EVT-PWY-2026-00116',
+        event_id: 'EVT_ENG_161026_0116',
         department: 'OPERATING',
         role: 'STATION_MASTER',
         officer_id: 'IIT_Patna',
@@ -1037,7 +1037,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
   // ===============================================================
   // 13. Danapur–Patna Junction (UP MAIN)
   {
-    id: 'EVT-HIST-2026-00082',
+    id: 'EVT_ENG_121026_0082',
     division: 'DNR',
     section: 'Danapur–Patna Junction',
     track_id: 'UP_MAIN',
@@ -1064,7 +1064,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-hist-pul-1',
-        event_id: 'EVT-HIST-2026-00082',
+        event_id: 'EVT_ENG_121026_0082',
         department: 'CIVIL_P_WAY',
         role: 'FIELD_SUPERVISOR',
         officer_id: 'SSE_PWAY_SEGM_03',
@@ -1074,7 +1074,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-hist-pul-2',
-        event_id: 'EVT-HIST-2026-00082',
+        event_id: 'EVT_ENG_121026_0082',
         department: 'OPERATING',
         role: 'SECTION_CONTROLLER',
         officer_id: 'CTRL_SEC_DNR_02',
@@ -1088,7 +1088,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
 
   // 14. Ara–Danapur (UP MAIN)
   {
-    id: 'EVT-HIST-2026-00088',
+    id: 'EVT_OHE_091026_0088',
     division: 'DNR',
     section: 'Ara–Danapur',
     track_id: 'UP_MAIN',
@@ -1115,7 +1115,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-hist-wda-1',
-        event_id: 'EVT-HIST-2026-00088',
+        event_id: 'EVT_OHE_091026_0088',
         department: 'OHE',
         role: 'TPC',
         officer_id: 'TPC_DDU_01',
@@ -1129,7 +1129,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
 
   // 15. Buxar–Ara Junction (DN MAIN)
   {
-    id: 'EVT-HIST-2026-00075',
+    id: 'EVT_SIG_081026_0075',
     division: 'DNR',
     section: 'Buxar–Ara Junction',
     track_id: 'DN_MAIN',
@@ -1156,7 +1156,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-hist-nw-1',
-        event_id: 'EVT-HIST-2026-00075',
+        event_id: 'EVT_SIG_081026_0075',
         department: 'S_AND_T',
         role: 'FIELD_SUPERVISOR',
         officer_id: 'SSE_SIG_NGP_02',
@@ -1170,7 +1170,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
 
   // 16. Pt. Deen Dayal Upadhyaya–Buxar (UP MAIN)
   {
-    id: 'EVT-HIST-2026-00069',
+    id: 'EVT_OHE_031026_0069',
     division: 'DNR',
     section: 'Pt. Deen Dayal Upadhyaya–Buxar',
     track_id: 'UP_MAIN',
@@ -1197,7 +1197,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-hist-ns-1',
-        event_id: 'EVT-HIST-2026-00069',
+        event_id: 'EVT_OHE_031026_0069',
         department: 'OHE',
         role: 'TPC',
         officer_id: 'TPC_DDU_01',
@@ -1211,7 +1211,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
 
   // 17. Danapur Junction Siding - Mechanical (C&W) Historical
   {
-    id: 'EVT-HIST-2026-00062',
+    id: 'EVT_CW_021026_0062',
     division: 'DNR',
     section: 'Ara–Danapur',
     track_id: 'DOWN_LOOP',
@@ -1238,7 +1238,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-hist-cw-1',
-        event_id: 'EVT-HIST-2026-00062',
+        event_id: 'EVT_CW_021026_0062',
         department: 'MECHANICAL_CW',
         role: 'FIELD_SUPERVISOR',
         officer_id: 'SSE_CW_WDA_01',
@@ -1248,7 +1248,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
       },
       {
         id: 's-hist-cw-2',
-        event_id: 'EVT-HIST-2026-00062',
+        event_id: 'EVT_CW_021026_0062',
         department: 'OPERATING',
         role: 'STATION_MASTER',
         officer_id: 'SM_ARA_01',
@@ -1262,7 +1262,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
 
   // 18. Buxar–Ara Junction (DN MAIN) - Safety Directorate Historical
   {
-    id: 'EVT-HIST-2026-00058',
+    id: 'EVT_SAF_280926_0058',
     division: 'DNR',
     section: 'Buxar–Ara Junction',
     track_id: 'DN_MAIN',
@@ -1289,7 +1289,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
     stakeholders: [
       {
         id: 's-hist-saf-1',
-        event_id: 'EVT-HIST-2026-00058',
+        event_id: 'EVT_SAF_280926_0058',
         department: 'SAFETY',
         role: 'SAFETY_OFFICER',
         officer_id: 'DSC_SAFETY_NGP_01',
@@ -1309,7 +1309,7 @@ export const INITIAL_OPERATIONAL_EVENTS: OperationalEvent[] = [
 export const INITIAL_AUDIT_BLOCKS: AuditBlock[] = [
   {
     block_number: 1042,
-    event_id: 'EVT-HIST-2026-00082',
+    event_id: 'EVT_ENG_121026_0082',
     timestamp: '2026-10-12T18:30:00Z',
     prev_hash: '8f3ca9b12a4d81e997ed255198f3ca9b12a4d81e997ed25519b12a4d81e997e1',
     merkle_root: '9d4ed81e997ed25519tpcngp013e1b7194853641ef85smpul019f2c81e997ed',
@@ -1363,7 +1363,7 @@ export const INITIAL_AUDIT_BLOCKS: AuditBlock[] = [
   },
   {
     block_number: 1041,
-    event_id: 'EVT-HIST-2026-00088',
+    event_id: 'EVT_OHE_091026_0088',
     timestamp: '2026-10-10T04:15:00Z',
     prev_hash: '7e2ba9b12a4d81e997ed255198f3ca9b12a4d81e997ed25519b12a4d81e997e0',
     merkle_root: '8c3ed81e997ed25519tpcddu013e1b7194853641ef85smpnbe019f2c81e997ec',
@@ -1404,7 +1404,7 @@ export const INITIAL_AUDIT_BLOCKS: AuditBlock[] = [
   },
   {
     block_number: 1040,
-    event_id: 'EVT-HIST-2026-00075',
+    event_id: 'EVT_SIG_081026_0075',
     timestamp: '2026-10-08T14:00:00Z',
     prev_hash: '6d1ba9b12a4d81e997ed255198f3ca9b12a4d81e997ed25519b12a4d81e997df',
     merkle_root: '7b2ed81e997ed25519tpcddu013e1b7194853641ef85smpnbe019f2c81e997eb',
@@ -1439,7 +1439,7 @@ export const INITIAL_AUDIT_BLOCKS: AuditBlock[] = [
   },
   {
     block_number: 1039,
-    event_id: 'EVT-HIST-2026-00069',
+    event_id: 'EVT_OHE_031026_0069',
     timestamp: '2026-10-04T07:45:00Z',
     prev_hash: '5c0aa9b12a4d81e997ed255198f3ca9b12a4d81e997ed25519b12a4d81e997de',
     merkle_root: '6a1ed81e997ed25519tpcddu013e1b7194853641ef85smpnbe019f2c81e997ea',
@@ -1467,7 +1467,7 @@ export const INITIAL_AUDIT_BLOCKS: AuditBlock[] = [
   },
   {
     block_number: 1038,
-    event_id: 'EVT-HIST-2026-00062',
+    event_id: 'EVT_CW_021026_0062',
     timestamp: '2026-10-02T11:45:00Z',
     prev_hash: '4b9aa9b12a4d81e997ed255198f3ca9b12a4d81e997ed25519b12a4d81e997dd',
     merkle_root: '5a0ed81e997ed25519tpcddu013e1b7194853641ef85smpnbe019f2c81e997e9',
@@ -1502,7 +1502,7 @@ export const INITIAL_AUDIT_BLOCKS: AuditBlock[] = [
   },
   {
     block_number: 1037,
-    event_id: 'EVT-HIST-2026-00058',
+    event_id: 'EVT_SAF_280926_0058',
     timestamp: '2026-09-29T02:15:00Z',
     prev_hash: '3a8aa9b12a4d81e997ed255198f3ca9b12a4d81e997ed25519b12a4d81e997dc',
     merkle_root: '4f9ed81e997ed25519tpcddu013e1b7194853641ef85smpnbe019f2c81e997e8',

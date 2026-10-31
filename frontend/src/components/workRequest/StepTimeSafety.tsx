@@ -157,7 +157,7 @@ export const StepTimeSafety: React.FC<StepTimeSafetyProps> = ({
                 </span>
               </div>
               <p className="text-xs text-amber-800 mt-1 leading-relaxed">
-                An existing maintenance possession (<strong className="font-mono">EVT-OHE-2026-00041</strong>) is
+                An existing maintenance possession (<strong className="font-mono">EVT_OHE_161026_0041</strong>) is
                 scheduled on <strong>{formData.trackId}</strong> ({formData.sectionLabel}) during 14:00 – 18:00 IST.
               </p>
 

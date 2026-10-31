@@ -417,12 +417,14 @@ export const AndroidFieldApp: React.FC<AndroidFieldAppProps> = ({
   // Helper: Is this an ongoing work on track?
   const isOngoingWork = (e: OperationalEvent): boolean => {
     const s = (e.status || '') as string;
-    if ((e.fsm_stage ?? 0) >= 7 || s === 'BLOCK_CLEARED' || s === 'AUDIT_LOCKED') return false;
+    if ((e.fsm_stage ?? 0) >= 7 || s === 'BLOCK_CLEARED' || s === 'AUDIT_LOCKED' || s === 'WORK_COMPLETED' || s === 'SAFETY_VERIFIED') return false;
     return Boolean(
       e.fsm_stage === 6 ||
+      e.fsm_stage === 5 ||
       s === 'ACTIVE_IN_PROGRESS' ||
+      s === 'APPROVED' ||
+      s === 'SCHEDULED' ||
       s === 'ACTIVE_TRACK_POSSESSION' ||
-      s === 'WORK_COMPLETED' ||
       s === 'IN_PROGRESS' ||
       s === 'OCCUPIED'
     );
@@ -436,6 +438,7 @@ export const AndroidFieldApp: React.FC<AndroidFieldAppProps> = ({
       (e.assigned_by || '').includes('STATION_MASTER') ||
       (e.originator_id || '').includes('SM_') ||
       (e.id || '').includes('EVT-SM') ||
+      (e.id || '').includes('EVT_SM') ||
       e.permits?.some(p => (p as any).issued_by?.includes('SM') || (p as any).type?.includes('STATION_MASTER'))
     );
   };
