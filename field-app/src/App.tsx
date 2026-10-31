@@ -91,6 +91,8 @@ export function App() {
 
   useEffect(() => {
     loadEvents();
+    const interval = setInterval(loadEvents, 3000);
+    return () => clearInterval(interval);
   }, [loadEvents]);
 
   // Real-time WebSocket connection to shared backend
