@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Lock, User, Eye, EyeOff, ShieldCheck, Train, Fingerprint, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Lock, User, Eye, EyeOff, ShieldCheck, Train, ArrowRight, AlertCircle } from 'lucide-react';
 
 export interface FieldUser {
   username: string;
@@ -15,12 +15,11 @@ interface MobileLoginViewProps {
 }
 
 export const MobileLoginView: React.FC<MobileLoginViewProps> = ({ onLoginSuccess }) => {
-  const [username, setUsername] = useState('worker_a');
-  const [password, setPassword] = useState('123456');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [biometricScanning, setBiometricScanning] = useState(false);
 
   const handleLogin = (u = username, p = password) => {
     setError(null);
@@ -45,19 +44,10 @@ export const MobileLoginView: React.FC<MobileLoginViewProps> = ({ onLoginSuccess
         } catch (_) {}
         onLoginSuccess(user);
       } else {
-        setError('Invalid Operator ID or PIN. Correct credentials: danapur_sm or worker_a / 123456');
+        setError('Invalid Operator ID or PIN. Please enter your valid railway credentials.');
         setLoading(false);
       }
     }, 400);
-  };
-
-  const handleBiometric = () => {
-    setBiometricScanning(true);
-    setError(null);
-    setTimeout(() => {
-      setBiometricScanning(false);
-      handleLogin('worker_a', '123456');
-    }, 800);
   };
 
   return (
@@ -79,7 +69,7 @@ export const MobileLoginView: React.FC<MobileLoginViewProps> = ({ onLoginSuccess
       {/* Top Branding Section */}
       <div>
         {/* IR Badge */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 36 }}>
           <div
             style={{
               display: 'inline-flex',
@@ -114,7 +104,7 @@ export const MobileLoginView: React.FC<MobileLoginViewProps> = ({ onLoginSuccess
         </div>
 
         {/* Logo and Title */}
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+        <div style={{ textAlign: 'center', marginBottom: 36 }}>
           <div
             style={{
               width: 58,
@@ -134,12 +124,7 @@ export const MobileLoginView: React.FC<MobileLoginViewProps> = ({ onLoginSuccess
 
           <div style={{ fontSize: 24, fontWeight: 900, letterSpacing: '-0.02em', color: '#FFFFFF' }}>
             <span style={{ color: '#60A5FA' }}>Rail</span>Sync
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#94A3B8', marginLeft: 8 }}>Field Ops</span>
           </div>
-
-          <p style={{ fontSize: 12, color: '#64748B', marginTop: 4, fontWeight: 500 }}>
-            Ground Crew &amp; OHE Track Possession Terminal
-          </p>
         </div>
 
         {/* Error Alert */}
@@ -170,7 +155,7 @@ export const MobileLoginView: React.FC<MobileLoginViewProps> = ({ onLoginSuccess
             e.preventDefault();
             handleLogin();
           }}
-          style={{ display: 'flex', flexDirection: 'column', gap: 16 }}
+          style={{ display: 'flex', flexDirection: 'column', gap: 18 }}
         >
           {/* Operator ID Input */}
           <div>
@@ -195,8 +180,9 @@ export const MobileLoginView: React.FC<MobileLoginViewProps> = ({ onLoginSuccess
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="e.g. worker_a"
+                placeholder="Enter Operator ID"
                 required
+                autoComplete="off"
                 style={{
                   flex: 1,
                   background: 'transparent',
@@ -216,7 +202,6 @@ export const MobileLoginView: React.FC<MobileLoginViewProps> = ({ onLoginSuccess
               <label style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.03em' }}>
                 SECURITY PIN / PASSWORD
               </label>
-              <span style={{ fontSize: 10, color: '#60A5FA', fontWeight: 600 }}>Default: 123456</span>
             </div>
             <div
               style={{
@@ -238,6 +223,7 @@ export const MobileLoginView: React.FC<MobileLoginViewProps> = ({ onLoginSuccess
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter 6-digit PIN"
                 required
+                autoComplete="off"
                 style={{
                   flex: 1,
                   background: 'transparent',
@@ -264,7 +250,7 @@ export const MobileLoginView: React.FC<MobileLoginViewProps> = ({ onLoginSuccess
             type="submit"
             disabled={loading}
             style={{
-              marginTop: 8,
+              marginTop: 10,
               height: 48,
               borderRadius: 12,
               background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
@@ -292,69 +278,10 @@ export const MobileLoginView: React.FC<MobileLoginViewProps> = ({ onLoginSuccess
             )}
           </button>
         </form>
-
-        {/* Divider */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '22px 0 16px' }}>
-          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
-          <span style={{ fontSize: 10, color: '#475569', fontWeight: 700, letterSpacing: '0.05em' }}>OR QUICK ACCESS</span>
-          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
-        </div>
-
-        {/* One-Tap Biometric Fingerprint Button */}
-        <button
-          type="button"
-          onClick={handleBiometric}
-          disabled={biometricScanning || loading}
-          style={{
-            width: '100%',
-            height: 46,
-            borderRadius: 12,
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.12)',
-            color: '#E2E8F0',
-            fontSize: 12.5,
-            fontWeight: 700,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 8,
-            transition: 'all 0.2s ease',
-          }}
-        >
-          <Fingerprint size={18} color={biometricScanning ? '#60A5FA' : '#38BDF8'} />
-          <span>{biometricScanning ? 'Scanning Biometrics...' : 'Quick Sign-In with Biometrics'}</span>
-        </button>
-
-        {/* Pre-fill Demo Credentials Pill */}
-        <div style={{ textAlign: 'center', marginTop: 14 }}>
-          <button
-            type="button"
-            onClick={() => {
-              setUsername('worker_a');
-              setPassword('123456');
-            }}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#60A5FA',
-              fontSize: 11,
-              fontWeight: 600,
-              cursor: 'pointer',
-              textDecoration: 'underline',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-            }}
-          >
-            <CheckCircle2 size={12} />
-            Fill Credentials (worker_a / 123456)
-          </button>
-        </div>
       </div>
 
       {/* Footer Info */}
-      <div style={{ textAlign: 'center', paddingTop: 20 }}>
+      <div style={{ textAlign: 'center', paddingTop: 24 }}>
         <div style={{ fontSize: 10.5, color: '#64748B', fontWeight: 600 }}>
           Danapur Division (DNR) • Patna Junction (PNBE)
         </div>

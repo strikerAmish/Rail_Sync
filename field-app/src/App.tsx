@@ -11,21 +11,7 @@ import { runLocalStorageEventMigration, migrateEventsArray } from './idMigration
 runLocalStorageEventMigration();
 
 export function App() {
-  const [currentUser, setCurrentUser] = useState<FieldUser | null>(() => {
-    try {
-      const saved = localStorage.getItem('railsync_field_user');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && (parsed.name === 'Ravi Amish' || parsed.username === 'raviamish')) {
-          parsed.name = 'Worker_A';
-          parsed.username = 'worker_a';
-          localStorage.setItem('railsync_field_user', JSON.stringify(parsed));
-        }
-        return parsed;
-      }
-    } catch (_) {}
-    return null;
-  });
+  const [currentUser, setCurrentUser] = useState<FieldUser | null>(null);
 
   const [events, setEvents] = useState<OperationalEvent[]>(() => {
     try {
