@@ -37,6 +37,12 @@ async function fetchWithTrace(input: RequestInfo | URL, init: RequestInit = {}):
   try {
     return await fetch(input, { ...init, headers });
   } catch (netErr) {
+    if (typeof input === 'string' && input.startsWith('http://') && typeof window !== 'undefined' && window.location.protocol === 'https:') {
+      try {
+        const u = new URL(input);
+        return await fetch(u.pathname + u.search, { ...init, headers });
+      } catch (_) {}
+    }
     if (typeof input === 'string' && input.startsWith('/api/v1')) {
       const fallbackUrl = `http://127.0.0.1:8000${input}`;
       return await fetch(fallbackUrl, { ...init, headers });

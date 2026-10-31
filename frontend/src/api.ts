@@ -32,7 +32,17 @@ async function fetchWithTrace(input: RequestInfo | URL, init: RequestInit = {}):
   if (!headers.has('traceparent')) {
     headers.set('traceparent', getOrCreateTraceparent());
   }
-  return fetch(input, { ...init, headers });
+  try {
+    return await fetch(input, { ...init, headers });
+  } catch (err) {
+    if (typeof input === 'string' && input.startsWith('http://') && typeof window !== 'undefined' && window.location.protocol === 'https:') {
+      try {
+        const u = new URL(input);
+        return await fetch(u.pathname + u.search, { ...init, headers });
+      } catch (_) {}
+    }
+    throw err;
+  }
 }
 
 export async function fetchCorridorStatus() {
