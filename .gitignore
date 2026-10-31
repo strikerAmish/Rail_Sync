@@ -14,6 +14,8 @@ venv/
 # Node
 frontend/node_modules/
 frontend/dist/
+field-app/node_modules/
+field-app/dist/
 
 # Terraform state & secrets
 infra/.terraform/
@@ -25,7 +27,3 @@ infra/.terraform.lock.hcl
 # OS
 .DS_Store
 Thumbs.db
-
-# Field App
-field app/
-

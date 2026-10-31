@@ -509,6 +509,43 @@ export function App() {
     }
   };
 
+  // ── Intelligent Global Search Handler with Auto-Tab Routing ──
+  const handleSearchChange = (q: string) => {
+    setSearchQuery(q);
+    if (q.trim()) {
+      const qLower = q.trim().toLowerCase();
+      if (activeView !== 'workspace') {
+        setActiveView('workspace');
+      }
+      const matchesInCurrent = events.some(e => {
+        const cat = getEventCategory(e);
+        return cat === activeTab && (
+          (e.id || '').toLowerCase().includes(qLower) ||
+          (e.section || '').toLowerCase().includes(qLower) ||
+          (e.description || '').toLowerCase().includes(qLower) ||
+          (e.track_id || '').toLowerCase().includes(qLower)
+        );
+      });
+      if (!matchesInCurrent) {
+        for (const targetTab of [1, 0, 2]) {
+          const hasMatch = events.some(e => {
+            const cat = getEventCategory(e);
+            return cat === targetTab && (
+              (e.id || '').toLowerCase().includes(qLower) ||
+              (e.section || '').toLowerCase().includes(qLower) ||
+              (e.description || '').toLowerCase().includes(qLower) ||
+              (e.track_id || '').toLowerCase().includes(qLower)
+            );
+          });
+          if (hasMatch) {
+            setActiveTab(targetTab);
+            break;
+          }
+        }
+      }
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <LoginView
@@ -567,11 +604,20 @@ export function App() {
           onSelectSection={setSelectedSectionId}
           onLogout={() => setIsAuthenticated(false)}
           searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
+          onSearchChange={handleSearchChange}
           onOpenWorkRequest={() => setIsModalOpen(true)}
           workRequestBtnRef={workRequestBtnRef}
           unreadMessagesCount={chatStore.unreadCount}
           currentUser={currentUser}
+          messages={chatStore.messages}
+          onSelectEvent={(evt) => {
+            setSelectedEvent(evt);
+            setActiveTab(1);
+            setActiveView('workspace');
+          }}
+          onNavigateMessages={() => {
+            setActiveView('messages');
+          }}
         />
 
         {/* ── Persistent Emergency Stop Active Banner ── */}

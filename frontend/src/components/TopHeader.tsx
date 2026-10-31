@@ -5,6 +5,7 @@ import {
   SlidersHorizontal, Check, Plus
 } from 'lucide-react';
 import { OperationalEvent } from '../types';
+import { getEventCategory } from './MiddleColumn';
 import { TelemetryBellDrawer } from './TelemetryBellDrawer';
 import { CORRIDOR_SECTIONS } from '../data/corridorData';
 
@@ -23,9 +24,13 @@ interface TopHeaderProps {
   workRequestBtnRef?: React.RefObject<HTMLButtonElement | null>;
   unreadMessagesCount?: number;
   currentUser?: { username: string; name: string; role: string; station: string } | null;
+  onSelectEvent?: (e: OperationalEvent) => void;
+  onNavigateMessages?: () => void;
+  messages?: any[];
 }
 
 export const TopHeader: React.FC<TopHeaderProps> = ({
+  events = [],
   selectedEvent,
   ambientNotifications,
   activeView,
@@ -39,10 +44,12 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   workRequestBtnRef,
   unreadMessagesCount = 0,
   currentUser,
+  onSelectEvent,
+  onNavigateMessages,
+  messages = [],
 }) => {
   const [bellOpen, setBellOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [liveFeedOpen, setLiveFeedOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
   const displayName = currentUser?.name || 'IIT_Patna';
@@ -56,19 +63,13 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
     .toUpperCase() || 'IP';
 
   const opNotifs = ambientNotifications.filter(n => !n.includes('INITIAL_SNAPSHOT'));
+  const pendingCount = events.filter(e => getEventCategory(e) === 1).length;
+  const totalAlerts = pendingCount + unreadMessagesCount;
+
 
   const sectionObj = CORRIDOR_SECTIONS.find(s => s.id === selectedSectionId);
   const sectionLabel = sectionObj ? sectionObj.shortName : 'All Sections';
 
-  // Live telemetry feed events for East Central Railway (Patna & DDU / Danapur)
-  const liveFeeds = [
-    { time: '13:18:42Z', post: 'TPC-DDU', msg: 'Circuit breaker trip telemetry verified at Feeding Post FP-02 (Danapur TSS / DDU Grid).', type: 'POWER' },
-    { time: '13:16:10Z', post: 'SM-PNBE', msg: 'Patna Junction Platform 1 Up Main track possession authorized for CSM-952 tamping unit.', type: 'BLOCK' },
-    { time: '13:14:25Z', post: 'SM-ARA', msg: 'Ara Junction physical point clamp #12B padlocked. Reverse route locked against Up Main.', type: 'CLAMP' },
-    { time: '13:10:00Z', post: 'COA-FOIS', msg: 'Danapur Section Controller pacing container freight rake N/BOXNHL-243 via Down Loop at TSR 30 km/h.', type: 'TRAFFIC' },
-    { time: '13:05:12Z', post: 'GSR-DAG', msg: '6 Invariants evaluated. Joint-departmental Form3-PTW co-utilization granted for S&T on Danapur–Patna.', type: 'PIGGYBACK' },
-    { time: '12:58:30Z', post: 'SCADA-BXR', msg: 'Buxar feeding substation FP-04 healthy. Catenary voltage 26.4 kV nominal.', type: 'POWER' },
-  ];
 
   // Click outside to close profile dropdown
   useEffect(() => {
@@ -103,20 +104,6 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ fontSize: 13, fontWeight: 700, color: '#0F172A' }}>
                 Station Master Decision Portal
-              </span>
-              <span style={{ color: '#CBD5E1', fontSize: 12 }}>/</span>
-              <span
-                style={{
-                  fontSize: 11.5,
-                  fontWeight: 600,
-                  color: '#1D4ED8',
-                  background: '#EFF6FF',
-                  padding: '2px 8px',
-                  borderRadius: 6,
-                  border: '1px solid #BFDBFE',
-                }}
-              >
-                {sectionLabel}
               </span>
               {selectedEvent && (
                 <>
@@ -212,18 +199,34 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         </div>
 
         {/* ── Center: Search + Section Dropdown on the Right of Search ── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, maxWidth: 640 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 260, maxWidth: 540 }}>
           {/* Search bar */}
-          <div className="search-bar" style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, padding: '0 12px', height: 38, borderRadius: 8, border: '1px solid #E2E8F0', background: '#FFFFFF' }}>
-            <Search size={14} color="#94A3B8" />
+          <div
+            className="search-bar"
+            style={{
+              flex: 1,
+              minWidth: 180,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '0 12px',
+              height: 38,
+              borderRadius: 8,
+              border: '1px solid #CBD5E1',
+              background: '#FFFFFF',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+            }}
+          >
+            <Search size={14} color="#64748B" style={{ flexShrink: 0 }} />
             <input
               type="text"
-              placeholder="Search events, stations, memos, departments (e.g. Civil)..."
+              placeholder="Search by Event ID, Section, Dept, Station..."
               id="global-search"
               value={searchQuery || ''}
               onChange={e => onSearchChange && onSearchChange(e.target.value)}
               style={{
                 flex: 1,
+                minWidth: 80,
                 border: 'none',
                 outline: 'none',
                 fontSize: 12.5,
@@ -311,43 +314,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             </button>
           )}
 
-          {/* Live Feed Status Pill (Clickable & Workable) */}
-          <button
-            onClick={() => setLiveFeedOpen(true)}
-            id="live-station-feed-btn"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              padding: '6px 12px',
-              borderRadius: 99,
-              background: '#F0FDF4',
-              border: '1.5px solid #86EFAC',
-              fontSize: 11,
-              fontWeight: 700,
-              color: '#15803D',
-              cursor: 'pointer',
-              transition: 'all 0.15s ease',
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.background = '#DCFCE7';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.background = '#F0FDF4';
-            }}
-            title="Click to open Live Station Telemetry Feed"
-          >
-            <span
-              style={{
-                width: 7,
-                height: 7,
-                borderRadius: '50%',
-                background: '#16A34A',
-                boxShadow: '0 0 0 2px rgba(22,163,74,0.3)',
-              }}
-            />
-            <span>Live Station Feed</span>
-          </button>
+          
 
           {/* Notification Bell */}
           <button
@@ -377,15 +344,16 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
             id="notification-bell"
           >
             <Bell size={16} color="#475569" />
-            {(opNotifs.length > 0 || unreadMessagesCount > 0) && (
+            {totalAlerts > 0 && (
               <span
                 style={{
                   position: 'absolute',
                   top: -4,
                   right: -4,
-                  width: 16,
+                  minWidth: 16,
                   height: 16,
-                  borderRadius: '50%',
+                  padding: '0 4px',
+                  borderRadius: 10,
                   background: unreadMessagesCount > 0 ? '#DC2626' : '#2563EB',
                   border: '2px solid #FFFFFF',
                   fontSize: 9,
@@ -396,7 +364,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                   justifyContent: 'center',
                 }}
               >
-                {Math.min(opNotifs.length + unreadMessagesCount, 9)}
+                {totalAlerts > 9 ? '9+' : totalAlerts}
               </span>
             )}
           </button>
@@ -559,144 +527,23 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         </div>
       </header>
 
-      {/* ── Modal: Live Station Telemetry Feed ───────────── */}
-      {liveFeedOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(15, 23, 42, 0.65)',
-            zIndex: 1000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 20,
-          }}
-          onClick={() => setLiveFeedOpen(false)}
-        >
-          <div
-            style={{
-              background: '#FFFFFF',
-              borderRadius: 12,
-              maxWidth: 620,
-              width: '100%',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-              overflow: 'hidden',
-            }}
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div
-              style={{
-                background: '#0F172A',
-                padding: '16px 20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: '50%',
-                    background: '#22C55E',
-                    boxShadow: '0 0 0 3px rgba(34,197,94,0.3)',
-                  }}
-                />
-                <span style={{ fontSize: 14, fontWeight: 800, color: '#F8FAFC' }}>
-                  Live Station Telemetry Feed • Patna &amp; DDU / Danapur Corridor
-                </span>
-              </div>
-              <button
-                onClick={() => setLiveFeedOpen(false)}
-                style={{ background: 'none', border: 'none', color: '#94A3B8', cursor: 'pointer' }}
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            {/* Feeds List */}
-            <div style={{ maxHeight: 420, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {liveFeeds.map((feed, i) => (
-                <div
-                  key={i}
-                  style={{
-                    padding: '10px 14px',
-                    borderRadius: 8,
-                    background: '#F8FAFC',
-                    border: '1px solid #E2E8F0',
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: 12,
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 700,
-                      fontFamily: 'JetBrains Mono, monospace',
-                      padding: '2px 6px',
-                      borderRadius: 4,
-                      background: feed.type === 'POWER' ? '#FEF3C7' : feed.type === 'BLOCK' ? '#EFF6FF' : '#DCFCE7',
-                      color: feed.type === 'POWER' ? '#B45309' : feed.type === 'BLOCK' ? '#1D4ED8' : '#166534',
-                      border: '1px solid rgba(0,0,0,0.06)',
-                      flexShrink: 0,
-                    }}
-                  >
-                    {feed.type}
-                  </span>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#0F172A', marginBottom: 2 }}>
-                      {feed.post} • <span style={{ color: '#64748B', fontWeight: 400 }}>{feed.time}</span>
-                    </div>
-                    <div style={{ fontSize: 12, color: '#334155', lineHeight: 1.35 }}>
-                      {feed.msg}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Footer */}
-            <div
-              style={{
-                padding: '12px 20px',
-                background: '#F1F5F9',
-                borderTop: '1px solid #E2E8F0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                fontSize: 11,
-                color: '#64748B',
-              }}
-            >
-              <span>Auto-refreshing via WebSocket • 5ms Redis stream</span>
-              <button
-                onClick={() => setLiveFeedOpen(false)}
-                style={{
-                  padding: '4px 12px',
-                  borderRadius: 6,
-                  border: '1px solid #CBD5E1',
-                  background: '#FFFFFF',
-                  color: '#0F172A',
-                  fontSize: 11,
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                }}
-              >
-                Close Feed
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      
 
       <TelemetryBellDrawer
         isOpen={bellOpen}
         onClose={() => setBellOpen(false)}
         notifications={ambientNotifications}
+        events={events}
+        messages={messages}
+        unreadMessagesCount={unreadMessagesCount}
+        onSelectPendingEvent={(evt) => {
+          setBellOpen(false);
+          if (onSelectEvent) onSelectEvent(evt);
+        }}
+        onNavigateToMessages={() => {
+          setBellOpen(false);
+          if (onNavigateMessages) onNavigateMessages();
+        }}
       />
     </>
   );

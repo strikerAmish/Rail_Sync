@@ -212,13 +212,13 @@ export const MiddleColumn: React.FC<MiddleColumnProps> = ({
       const cat = getEventCategory(e);
       if (cat !== activeTab) return false;
 
-      // 2. Section filter
-      if (!eventMatchesSection(e.section, selectedSectionId)) {
+      // 2. Section filter (relaxed during active search for instant global discovery)
+      if (!searchQuery && !eventMatchesSection(e.section, selectedSectionId)) {
         return false;
       }
 
-      // 3. Department filter
-      if (selectedDept !== 'ALL') {
+      // 3. Department filter (relaxed during active search)
+      if (!searchQuery && selectedDept !== 'ALL') {
         const d = getEventDept(e);
         if (d !== selectedDept) return false;
       }
@@ -266,8 +266,8 @@ export const MiddleColumn: React.FC<MiddleColumnProps> = ({
   const tabCounts = useMemo(() => {
     const counts = [0, 0, 0];
     events.forEach(e => {
-      if (!eventMatchesSection(e.section, selectedSectionId)) return;
-      if (selectedDept !== 'ALL') {
+      if (!searchQuery && !eventMatchesSection(e.section, selectedSectionId)) return;
+      if (!searchQuery && selectedDept !== 'ALL') {
         const d = getEventDept(e);
         if (d !== selectedDept) return;
       }
