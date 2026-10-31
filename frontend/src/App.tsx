@@ -285,6 +285,7 @@ export function App() {
               return {
                 ...existing,
                 ...d,
+                field_photo: d.field_photo || existing.field_photo,
                 is_suspended: existing.is_suspended ?? d.is_suspended,
                 station_actions: d.station_actions || existing.station_actions,
               };
@@ -433,6 +434,11 @@ export function App() {
         loadEvents();
       } else if (msg.type === 'PHOTO_UPDATED') {
         const evId = msg.data?.eventId || msg.data?.id;
+        const photo = msg.data?.photo;
+        if (evId && photo) {
+          setEvents(prev => prev.map(e => e.id === evId ? { ...e, field_photo: photo } : e));
+          setSelectedEvent(prev => prev && prev.id === evId ? { ...prev, field_photo: photo } : prev);
+        }
         setAmbientNotifs(prev => [
           `${ts}Z [MOBILE-FIELD-APP]: GPS Watermarked photo proof updated for ${evId}`,
           ...prev.slice(0, 30),

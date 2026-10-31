@@ -179,12 +179,36 @@ export const AndroidFieldApp: React.FC<AndroidFieldAppProps> = ({
     if (file) {
       const reader = new FileReader();
       reader.onload = (uploadEv) => {
-        const base64Url = uploadEv.target?.result as string;
-        setPhotoPreview(base64Url);
-        setReqPhoto(base64Url);
-        try {
-          localStorage.setItem('railsync_last_field_photo', base64Url);
-        } catch (_) {}
+        const rawUrl = uploadEv.target?.result as string;
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxDim = 640;
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, w, h);
+            const compressed = canvas.toDataURL('image/jpeg', 0.65);
+            setPhotoPreview(compressed);
+            setReqPhoto(compressed);
+            try {
+              localStorage.setItem('railsync_last_field_photo', compressed);
+            } catch (_) {}
+          }
+        };
+        img.src = rawUrl;
 
         const latVal = (25.5920 + Math.random() * 0.02).toFixed(5);
         const lngVal = (85.1180 + Math.random() * 0.02).toFixed(5);
@@ -246,7 +270,7 @@ export const AndroidFieldApp: React.FC<AndroidFieldAppProps> = ({
       const startTime = now.toISOString();
       const endTime = new Date(now.getTime() + parseFloat(reqDurationHrs) * 60 * 60 * 1000).toISOString();
 
-      const chosenPhoto = (reqPhoto && reqPhoto.length < 250000) ? reqPhoto : (photoPreview && photoPreview.length < 250000 ? photoPreview : '/images/ohe_crew.jpg');
+      const chosenPhoto = reqPhoto || photoPreview || localStorage.getItem('railsync_last_field_photo') || '/images/ohe_crew.jpg';
       const latVal = parseFloat(cameraGeo.lat) || 25.6028;
       const lngVal = parseFloat(cameraGeo.lng) || 85.1211;
       const fieldPhotoObj: FieldPhotoProof = {
