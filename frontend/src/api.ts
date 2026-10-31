@@ -1,6 +1,8 @@
 import { OperationalEvent, AuditBlock, SreMetrics } from './types';
 
-const API_BASE = (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/+$/, '') : '') + '/api/v1';
+const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+const rawApiUrl = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+const API_BASE = (isHttps && rawApiUrl.startsWith('http://') ? '' : rawApiUrl) + '/api/v1';
 
 // -------------------------------------------------------------
 // OpenTelemetry W3C Traceparent Generator & Interceptor
@@ -32,13 +34,22 @@ async function fetchWithTrace(input: RequestInfo | URL, init: RequestInit = {}):
   if (!headers.has('traceparent')) {
     headers.set('traceparent', getOrCreateTraceparent());
   }
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 4000);
   try {
-    return await fetch(input, { ...init, headers });
+    const res = await fetch(input, { ...init, headers, signal: init.signal || controller.signal });
+    clearTimeout(timer);
+    return res;
   } catch (err) {
+    clearTimeout(timer);
     if (typeof input === 'string' && input.startsWith('http://') && typeof window !== 'undefined' && window.location.protocol === 'https:') {
       try {
         const u = new URL(input);
-        return await fetch(u.pathname + u.search, { ...init, headers });
+        const ctrl2 = new AbortController();
+        const timer2 = setTimeout(() => ctrl2.abort(), 4000);
+        const res2 = await fetch(u.pathname + u.search, { ...init, headers, signal: ctrl2.signal });
+        clearTimeout(timer2);
+        return res2;
       } catch (_) {}
     }
     throw err;

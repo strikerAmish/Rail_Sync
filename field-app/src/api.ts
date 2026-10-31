@@ -1,7 +1,10 @@
 import { OperationalEvent, FieldPhotoProof } from './types';
 import { SyncBridge } from './syncBridge';
 
-const API_BASE = (import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace(/\/+$/, '') : '') + '/api/v1';
+const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+const rawApiUrl = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+// When running in browser over HTTPS, if VITE_API_URL is plain http, use relative '/api/v1' to let Amplify reverse-proxy it safely
+const API_BASE = (isHttps && rawApiUrl.startsWith('http://') ? '' : rawApiUrl) + '/api/v1';
 
 // Singleton sync bridge (BroadcastChannel + localStorage + polling)
 const bridge = SyncBridge.getInstance();
@@ -34,18 +37,33 @@ async function fetchWithTrace(input: RequestInfo | URL, init: RequestInit = {}):
   if (!headers.has('traceparent')) {
     headers.set('traceparent', getOrCreateTraceparent());
   }
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 4000);
   try {
-    return await fetch(input, { ...init, headers });
+    const res = await fetch(input, { ...init, headers, signal: init.signal || controller.signal });
+    clearTimeout(timer);
+    return res;
   } catch (netErr) {
+    clearTimeout(timer);
     if (typeof input === 'string' && input.startsWith('http://') && typeof window !== 'undefined' && window.location.protocol === 'https:') {
       try {
         const u = new URL(input);
-        return await fetch(u.pathname + u.search, { ...init, headers });
+        const ctrl2 = new AbortController();
+        const timer2 = setTimeout(() => ctrl2.abort(), 4000);
+        const res2 = await fetch(u.pathname + u.search, { ...init, headers, signal: ctrl2.signal });
+        clearTimeout(timer2);
+        return res2;
       } catch (_) {}
     }
     if (typeof input === 'string' && input.startsWith('/api/v1')) {
-      const fallbackUrl = `http://127.0.0.1:8000${input}`;
-      return await fetch(fallbackUrl, { ...init, headers });
+      try {
+        const fallbackUrl = `http://127.0.0.1:8000${input}`;
+        const ctrl3 = new AbortController();
+        const timer3 = setTimeout(() => ctrl3.abort(), 3000);
+        const res3 = await fetch(fallbackUrl, { ...init, headers, signal: ctrl3.signal });
+        clearTimeout(timer3);
+        return res3;
+      } catch (_) {}
     }
     throw netErr;
   }
