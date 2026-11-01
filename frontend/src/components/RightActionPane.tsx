@@ -249,33 +249,20 @@ export const RightActionPane: React.FC<RightActionPaneProps> = ({
       });
     }
 
-    if (role === 'STATION_MASTER') {
-      // Station Master granting final master seal confirms statutory clearances
-      for (const reqRole of ['TPC', 'SECTION_CONTROLLER'] as ApprovalRole[]) {
-        const stkIdx = updatedStks.findIndex(s => s.role === reqRole);
-        if (stkIdx >= 0) {
-          updatedStks[stkIdx] = {
-            ...updatedStks[stkIdx],
-            approval_status: 'APPROVED',
-            signed_at: nowIso,
-            signature_hash: sigHash,
-          };
-        }
-      }
-    }
-
-    const approverRoles = ['STATION_MASTER', 'SECTION_CONTROLLER', 'TPC'];
-    const approvers = updatedStks.filter(s => approverRoles.includes(s.role));
-    const allApproversDone = approvers.length > 0 && approvers.every(s => s.approval_status === 'APPROVED');
+    // Strict Multi-Party Statutory Quorum: All 3 roles must sign individually
+    const requiredRoles = ['TPC', 'SECTION_CONTROLLER', 'STATION_MASTER'];
+    const hasTpc = updatedStks.some(s => s.role === 'TPC' && s.approval_status === 'APPROVED');
+    const hasCtrl = updatedStks.some(s => s.role === 'SECTION_CONTROLLER' && s.approval_status === 'APPROVED');
+    const hasSm = updatedStks.some(s => s.role === 'STATION_MASTER' && s.approval_status === 'APPROVED');
+    const allApproversDone = hasTpc && hasCtrl && hasSm;
 
     let updatedEvent: OperationalEvent = {
       ...event,
       stakeholders: updatedStks,
     };
 
-    // Once all permissions are granted (or Station Master grants seal):
-    // Automatically advance to Stage 6 (Active on Track) so it immediately moves to Ongoing Work!
-    if (allApproversDone || role === 'STATION_MASTER') {
+    // Only move to Ongoing Work (Stage 6: ACTIVE_IN_PROGRESS) when ALL 3 officers have approved!
+    if (allApproversDone) {
       updatedEvent.fsm_stage = 6;
       updatedEvent.status = 'ACTIVE_IN_PROGRESS';
       updatedEvent.status_color = '#DC2626';
@@ -286,8 +273,8 @@ export const RightActionPane: React.FC<RightActionPaneProps> = ({
         points_clamped_confirmed: true,
       };
     } else {
-      // Partial approval: advance to Stage 4 (Awaiting Approval)
-      updatedEvent.fsm_stage = Math.max(updatedEvent.fsm_stage || 2, 4);
+      // Still waiting for remaining officers: stays in Stage 4 (Pending Approvals)
+      updatedEvent.fsm_stage = 4;
       updatedEvent.status = 'AWAITING_APPROVAL';
       updatedEvent.status_color = '#F59E0B';
     }
@@ -1635,7 +1622,7 @@ export const RightActionPane: React.FC<RightActionPaneProps> = ({
           <div>
             <span style={{ color: '#64748B', display: 'block', fontSize: 10.5 }}>PERMIT REFERENCE:</span>
             <strong style={{ color: '#0F172A', fontFamily: 'JetBrains Mono, monospace' }}>
-              PERMIT-CR-NGP-2026-00132
+              PERMIT-ECR-DNR-{event.id.replace(/^EVT[-_]/, "")}
             </strong>
           </div>
           <div>
@@ -2147,7 +2134,7 @@ export const RightActionPane: React.FC<RightActionPaneProps> = ({
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, fontSize: 12, marginBottom: 18 }}>
               <div>
                 <span style={{ color: '#64748B', display: 'block', fontSize: 10.5 }}>PERMIT REFERENCE:</span>
-                <strong style={{ fontSize: 13, fontFamily: 'JetBrains Mono, monospace' }}>PERMIT-ECR-DNR-2026-00132</strong>
+                <strong style={{ fontSize: 13, fontFamily: 'JetBrains Mono, monospace' }}>PERMIT-ECR-DNR-{event.id.replace(/^EVT[-_]/, "")}</strong>
               </div>
               <div>
                 <span style={{ color: '#64748B', display: 'block', fontSize: 10.5 }}>DATE &amp; TIME ISSUED:</span>

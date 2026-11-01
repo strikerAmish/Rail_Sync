@@ -550,12 +550,7 @@ async def submit_dual_key_approval(event_id: str, payload: ApprovalRequest):
         VALUES (?, ?, 'POINT_CLAMP_MEMO', 1, ?, ?, 'Points clamped and padlocked mechanically')
         """, (str(uuid.uuid4()), event_id, now, payload.officer_id))
 
-        # Station Master final seal confirms the entire statutory quorum
-        cur.execute("""
-        UPDATE event_stakeholders
-        SET approval_status = 'APPROVED', signature_hash = ?, signed_at = ?
-        WHERE event_id = ? AND role IN ('TPC', 'SECTION_CONTROLLER') AND approval_status != 'APPROVED'
-        """, (sig_hash, now, event_id))
+        # Station Master signs their seal; does NOT automatically sign for TPC or Section Controller
 
     if payload.role == ApprovalRole.TPC and payload.decision == ApprovalStatus.APPROVED:
         cur.execute("""
@@ -573,12 +568,14 @@ async def submit_dual_key_approval(event_id: str, payload: ApprovalRequest):
     cur.execute("SELECT * FROM event_stakeholders WHERE event_id = ?", (event_id,))
     all_stks = [dict(s) for s in cur.fetchall()]
 
-    approver_roles = ["STATION_MASTER", "SECTION_CONTROLLER", "TPC"]
-    approvers = [s for s in all_stks if s["role"] in approver_roles]
-    all_approved = len(approvers) > 0 and all(s["approval_status"] == "APPROVED" for s in approvers)
+    # Strict multi-officer statutory quorum: all 3 must have formally approved
+    has_tpc = any(s["role"] == "TPC" and s["approval_status"] == "APPROVED" for s in all_stks)
+    has_ctrl = any(s["role"] == "SECTION_CONTROLLER" and s["approval_status"] == "APPROVED" for s in all_stks)
+    has_sm = any(s["role"] == "STATION_MASTER" and s["approval_status"] == "APPROVED" for s in all_stks)
+    all_approved = has_tpc and has_ctrl and has_sm
 
     new_status = event_row["status"]
-    if (all_approved or payload.role == ApprovalRole.STATION_MASTER) and payload.decision == ApprovalStatus.APPROVED:
+    if all_approved and payload.decision == ApprovalStatus.APPROVED:
         new_status = EventStatus.ACTIVE_IN_PROGRESS.value
         station_actions = json.loads(event_row["station_actions"]) if ("station_actions" in event_row.keys() and event_row["station_actions"]) else {}
         station_actions["power_cut_granted"] = True
